@@ -66,7 +66,19 @@ All overrides must receive the same parameter change.
 ```
 
 **3. SPS code documentation tags**
-All new or modified SPS code must be wrapped in standard tags:
+
+Before generating any fix code, you MUST collect the three tag fields. Do this in a single message:
+
+```
+Before I write the fix, I need three things for the SPS tags:
+1. Project/US number (e.g. US_122249)
+2. Developer name
+3. Date: <today's date in DD/MM/YYYY — use system date>
+```
+
+Wait for the user to supply project ID and developer name. Use the current system date automatically — do not ask for it.
+
+Once collected, wrap all new or modified code in standard tags:
 
 ```xpp
 //<SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
@@ -74,11 +86,9 @@ All new or modified SPS code must be wrapped in standard tags:
 //</SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
 ```
 
-- Use the actual US number from the work item
-- Use the actual developer name
-- Use today's date in DD/MM/YYYY format
 - Every block of changed code gets its own tag — do not tag unrelated surrounding code
 - If the fix spans multiple methods or classes, each gets its own tag block
+- If the user already provided these details earlier in the conversation, use them — do not ask again
 
 ## Output Format
 
