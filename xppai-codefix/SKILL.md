@@ -40,6 +40,46 @@ These blocks are owned by Microsoft/partner localization teams and must not be m
 - Always state risks, side effects, and what must be retested
 - Use existing object and method structure whenever possible
 
+## Mandatory Fix Metadata — Every Fix Must State
+
+**1. Exact object location**
+Always identify where the change goes. Never write "add this to the method" without naming the class, table, or form:
+
+```
+Object:  Class Tax
+Method:  insertIntersection
+Layer:   VAR (or CUS/USR — whichever applies)
+```
+
+**2. Signature change warning**
+If the fix changes a method signature (adds/removes/renames parameters), it is a HIGH RISK change in AX 2009. Always:
+- State explicitly: **"This is a signature change"**
+- List all known subclasses that override this method — they must be updated too
+- If subclasses are unknown, state: **"All subclasses overriding this method must be updated — verify in AOT before applying"**
+- Never propose a signature change as a low-risk fix
+
+```
+⚠️ SIGNATURE CHANGE — affects all subclasses overriding this method.
+Known overrides in this file: TaxPurch.insertIntersection
+Unknown overrides: verify AOT → Tax → right-click → Add-ins → Used by
+All overrides must receive the same parameter change.
+```
+
+**3. SPS code documentation tags**
+All new or modified SPS code must be wrapped in standard tags:
+
+```xpp
+//<SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
+// modified/added code here
+//</SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
+```
+
+- Use the actual US number from the work item
+- Use the actual developer name
+- Use today's date in DD/MM/YYYY format
+- Every block of changed code gets its own tag — do not tag unrelated surrounding code
+- If the fix spans multiple methods or classes, each gets its own tag block
+
 ## Output Format
 
 Always produce output in this exact structure:
@@ -53,8 +93,14 @@ Always produce output in this exact structure:
    If none: state "None — fix derived entirely from provided context."
 
 3. Exact Code Change
-   Before / After diff or inline replacement.
+   Always start with:
+     Object: <ClassName / TableName / FormName>
+     Method: <methodName>
+     Signature change: Yes / No
+     SPS tag required: Yes — //<SPS - US_XXXXX - DD/MM/YYYY - Name> / No
+   Then: Before / After diff or inline replacement.
    AX 2009 compatible X++ only.
+   Wrap all changed lines in SPS tags if applicable.
 
 4. Why This Fix Is the Safest Option
    Why this is minimal, why alternatives were rejected.
@@ -181,3 +227,6 @@ salesParm.calcTax();
 | Moving `ttsBegin` outside a loop | Transaction scope change is a behavioral change — flag it explicitly |
 | Adding `firstOnly` to a select that returns multiple rows | Verify cardinality first — wrong fix if multiple rows expected |
 | Assuming refresh() removal is safe | Check if downstream display methods depend on the refresh signal |
+| Proposing a signature change without checking subclasses | Always check AOT for overrides — every subclass that overrides must be updated |
+| Writing fix code without SPS tags | All new/modified SPS code must be wrapped in `//<SPS ...>` `//</SPS ...>` tags |
+| Saying "add to the method" without naming the object | Always name the exact class, table, or form and the method |
