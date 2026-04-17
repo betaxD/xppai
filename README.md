@@ -2,6 +2,8 @@
 
 A set of Claude Code skills specialized for Microsoft Dynamics AX 2009 and X++ development.
 
+WIP - be kind ;)
+
 ## Installation
 
 Copy the skill folders into your `~/.claude/skills/` directory. All skills are ready to use immediately.
