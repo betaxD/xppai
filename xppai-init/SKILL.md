@@ -5,6 +5,30 @@ description: Use when working with any X++ AX 2009 code, analysis, review, or fi
 
 # XppAI Init — AX 2009 & X++ Foundational Knowledge
 
+## Session Setup — Collect Tag Fields Once
+
+**If any skill in this session may produce code output (xppai-codefix, xppai-tagReview, or any fix/patch work):**
+
+At the very start of the session, before any analysis or output, ask the user for the following in a single message:
+
+```
+Before we start, I need a few details for the documentation tags:
+1. Company/tag prefix — the code used in your project tags (e.g. SPS, ABC, XPTO)
+2. Project/US number — e.g. US_122249
+3. Developer name — as it should appear in the tag
+
+I will set the date automatically.
+```
+
+- Ask **once per session** — if already collected, never ask again
+- Do NOT ask for the full tag string — collect the three fields and assemble the tag yourself
+- Date is always set automatically to the current system date in DD/MM/YYYY format
+- Tag format once assembled: `//<PREFIX - US_XXXXXX - DD/MM/YYYY - Developer Name>`
+
+If the session is analysis-only (explain, risk, stack, architect, posting) with no code output expected, skip this step.
+
+---
+
 ## Scope
 
 BASE layer + REAL WORK layer. No D365, no cloud, no modern AX. AX 2009 and X++ as used in real production projects.

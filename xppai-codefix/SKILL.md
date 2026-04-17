@@ -65,30 +65,25 @@ Unknown overrides: verify AOT → Tax → right-click → Add-ins → Used by
 All overrides must receive the same parameter change.
 ```
 
-**3. SPS code documentation tags**
+**3. Code documentation tags**
 
-Before generating any fix code, you MUST collect the three tag fields. Do this in a single message:
+Tag fields (prefix, project/US number, developer name) are collected **once per session** by `xppai-init` at session start.
 
-```
-Before I write the fix, I need three things for the SPS tags:
-1. Project/US number (e.g. US_122249)
-2. Developer name
-3. Date: <today's date in DD/MM/YYYY — use system date>
-```
+- Use the values already collected — do NOT ask for them again here
+- Do NOT ask for the full tag string — assemble it yourself from the collected fields
+- Date is always the current system date in DD/MM/YYYY format
+- If for any reason the session values are missing, ask for the three fields using the same format defined in `xppai-init`
 
-Wait for the user to supply project ID and developer name. Use the current system date automatically — do not ask for it.
-
-Once collected, wrap all new or modified code in standard tags:
+Once collected, assemble and wrap all new or modified code:
 
 ```xpp
-//<SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
+//<PREFIX - US_XXXXXX - DD/MM/YYYY - Developer Name>
 // modified/added code here
-//</SPS - US_XXXXXX - DD/MM/YYYY - Developer Name>
+//</PREFIX - US_XXXXXX - DD/MM/YYYY - Developer Name>
 ```
 
 - Every block of changed code gets its own tag — do not tag unrelated surrounding code
 - If the fix spans multiple methods or classes, each gets its own tag block
-- If the user already provided these details earlier in the conversation, use them — do not ask again
 
 ## Output Format
 
@@ -107,7 +102,7 @@ Always produce output in this exact structure:
      Object: <ClassName / TableName / FormName>
      Method: <methodName>
      Signature change: Yes / No
-     SPS tag required: Yes — //<SPS - US_XXXXX - DD/MM/YYYY - Name> / No
+     Tag required: Yes — //<PREFIX - US_XXXXX - DD/MM/YYYY - Name> / No
    Then: Before / After diff or inline replacement.
    AX 2009 compatible X++ only.
    Wrap all changed lines in SPS tags if applicable.
@@ -238,5 +233,6 @@ salesParm.calcTax();
 | Adding `firstOnly` to a select that returns multiple rows | Verify cardinality first — wrong fix if multiple rows expected |
 | Assuming refresh() removal is safe | Check if downstream display methods depend on the refresh signal |
 | Proposing a signature change without checking subclasses | Always check AOT for overrides — every subclass that overrides must be updated |
-| Writing fix code without SPS tags | All new/modified SPS code must be wrapped in `//<SPS ...>` `//</SPS ...>` tags |
+| Writing fix code without documentation tags | All new/modified code must be wrapped in `//<PREFIX ...>` `//</PREFIX ...>` tags |
+| Asking for the full tag string | Collect prefix, US number, and developer name separately — assemble the tag yourself |
 | Saying "add to the method" without naming the object | Always name the exact class, table, or form and the method |

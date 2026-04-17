@@ -18,6 +18,7 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 | `xppai-risk` | Assess change risk before modifying any code |
 | `xppai-babysit` | Static orchestrator — paste any artifact, get a full labeled analysis |
 | `xppai-papai` | Dynamic senior agent — reasons about what to apply and synthesizes findings |
+| `xppai-tagReview` | Compare two XPO exports and add project code documentation tags to changed code blocks |
 
 ## When to Use What
 
@@ -32,5 +33,7 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 **Posting flow is broken or unclear?** → `xppai-posting`
 
 **Need a fix?** → `xppai-codefix`
+
+**Have an approved XPO that needs documentation tags added?** → `xppai-tagReview`
 
 **Something smells architecturally wrong?** → `xppai-architect`
