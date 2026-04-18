@@ -60,6 +60,10 @@ For each skill applied, output a clearly labeled section using the skill's own o
 
 Do not blend outputs. Each section is self-contained and follows its skill's format exactly.
 
+## Export Integration
+
+After analyzing an artifact, if the user asks to export related objects to XPO files, invoke `xppai-exportxpo` with the object list. This generates a ready-to-paste X++ export job.
+
 ## Rules
 
 - Always state the detected artifact type before starting
