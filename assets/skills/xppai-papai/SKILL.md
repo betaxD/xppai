@@ -67,6 +67,10 @@ one practical conclusion. Write this like a senior engineer wrapping up
 a code review: direct, opinionated, actionable.
 ```
 
+## Export Integration
+
+If the user asks to export analyzed objects to XPO files after assessment, invoke `xppai-exportxpo` with the object list. The skill generates a ready-to-paste X++ export job.
+
 ## What Makes Papai Different from Babysit
 
 | | xppai-babysit | xppai-papai |
