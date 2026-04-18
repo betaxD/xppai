@@ -11,6 +11,7 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 |-------|---------|
 | `xppai-init` | Shared AX 2009 foundation — auto-loads on any X++ task |
 | `xppai-explain` | Understand unfamiliar methods, classes, forms, or tables |
+| `xppai-exportxpo` | Generate a ready-to-paste X++ job for exporting AOT objects to XPO files |
 | `xppai-stack` | Analyze profiler traces and stack traces |
 | `xppai-codefix` | Propose minimal, safe, production-ready code fixes |
 | `xppai-architect` | Review code for architectural weaknesses and design gaps |
