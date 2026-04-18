@@ -4,17 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-XppAI is a Claude Code skill suite for Microsoft Dynamics AX 2009 and X++ development. It is not a traditional software project — there is no build system, test suite, or package manager. The entire codebase is a set of `SKILL.md` files that encode expert AX 2009 knowledge for delivery through Claude Code's skill system.
+XppAI is an npm-installable package that bundles a Claude Code skill suite for Microsoft Dynamics AX 2009 and X++ development. The package is LLM-runtime-agnostic: skills are SKILL.md files in `assets/skills/`, and target-specific adapters handle installation to Claude, Codex, Copilot, or generic paths.
 
 ## Development Workflow
 
-Skills are plain Markdown files with YAML frontmatter. To develop:
+```bash
+node --test test/smoke.test.js       # run tests
+node bin/xppai.js list              # list bundled skills
+node bin/xppai.js path              # print assets/skills/ path
+node bin/xppai.js export --target generic --out ./out  # export to a dir
+node bin/xppai.js install --target claude              # install to ~/.claude/skills
+```
 
-- Edit `SKILL.md` files directly
-- Test by invoking the skill in Claude Code and verifying behavior manually
-- No linting, compilation, or automated tests exist
+Skills are plain Markdown files with YAML frontmatter. Edit `assets/skills/<name>/SKILL.md` directly. No build step.
 
-Each skill directory contains exactly one `SKILL.md`. The frontmatter format is:
+The frontmatter format is:
 
 ```markdown
 ---
@@ -25,7 +29,46 @@ description: one-line trigger description used by the skill dispatcher
 
 ## Architecture
 
-### Layered Skill Hierarchy
+### Package Structure
+
+```
+assets/skills/          ← canonical SKILL.md source (one dir per skill)
+bin/xppai.js            ← CLI entry point (#!/usr/bin/env node)
+src/assets.js           ← list(), path() — discovers packaged skills
+src/fs.js               ← filesystem helpers (copy, symlink, ensureDir, removeOwned)
+src/cli.js              ← argv parser + command dispatch
+src/commands/           ← one file per CLI command (list, path, export, install)
+src/targets/            ← one adapter per runtime (claude, codex, copilot, generic)
+test/smoke.test.js      ← smoke tests (node:test, no dependencies)
+```
+
+### Adapter Contract
+
+Every file in `src/targets/` exports:
+
+```js
+module.exports = {
+  id: String,
+  resolveInstallDir(opts),    // returns install path string, or null if export-only
+  listOwnedEntries(skillsDir), // returns exact array of entry names this adapter writes
+  export(skillsDir, outDir, opts)
+}
+```
+
+`install` calls `resolveInstallDir`. If it returns `null`, the command fails with a message directing the user to `export --out` instead.
+
+`export` removes only adapter-owned entries (from `listOwnedEntries`) before writing — unrelated files in the target directory are never touched.
+
+### Installable vs Export-only Targets
+
+| Target | Installable | Default location |
+|---|---|---|
+| `claude` | yes | `~/.claude/skills` |
+| `codex` | yes | `~/.agents/skills` |
+| `copilot` | no | use `--out` |
+| `generic` | no | use `--out` |
+
+### Skill Hierarchy
 
 ```
 xppai-init          ← shared foundation (loaded by all skills)
@@ -43,11 +86,6 @@ xppai-help          ← user-facing skill reference
 ```
 
 All specialist and orchestrator skills depend on `xppai-init`, which provides 12 shared knowledge domains covering AX 2009 architecture, X++ patterns, form lifecycle, transaction safety, performance hot paths, posting frameworks, and safe customization rules.
-
-### Orchestrator Pattern
-
-- **xppai-babysit** maps artifact types (stack trace, form XPO, posting code, class, method, table) to a fixed sequence of specialist skills. Produces a labeled multi-section report.
-- **xppai-papai** reads the artifact first, reasons about the dominant concern, then selects and orders skills dynamically. Adds a senior synthesis conclusion.
 
 ## Hard Constraints (Encoded in xppai-init)
 
