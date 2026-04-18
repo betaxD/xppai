@@ -1,6 +1,6 @@
 {
   "name": "xppai",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "description": "LLM-runtime-agnostic X++ AX 2009 skill suite",
   "license": "MIT",
   "repository": {
@@ -11,12 +11,27 @@
   "bugs": {
     "url": "https://github.com/betaxD/xppai/issues"
   },
-  "keywords": ["xpp", "ax2009", "dynamics-ax", "cli", "llm", "skills"],
-  "bin": { "xppai": "./bin/xppai.js" },
-  "files": ["assets/", "bin/", "src/"],
+  "keywords": [
+    "xpp",
+    "ax2009",
+    "dynamics-ax",
+    "cli",
+    "llm",
+    "skills"
+  ],
+  "bin": {
+    "xppai": "./bin/xppai.js"
+  },
+  "files": [
+    "assets/",
+    "bin/",
+    "src/"
+  ],
   "type": "commonjs",
   "scripts": {
     "test": "node --test test/smoke.test.js"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }
