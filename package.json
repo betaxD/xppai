@@ -1,0 +1,13 @@
+{
+  "name": "xppai",
+  "version": "0.1.0",
+  "description": "LLM-runtime-agnostic X++ AX 2009 skill suite",
+  "license": "MIT",
+  "bin": { "xppai": "./bin/xppai.js" },
+  "files": ["assets/", "bin/", "src/"],
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/smoke.test.js"
+  },
+  "engines": { "node": ">=18" }
+}
