@@ -13,6 +13,7 @@ const EXPECTED_SKILLS = [
   'xppai-babysit',
   'xppai-codefix',
   'xppai-explain',
+  'xppai-exportxpo',
   'xppai-help',
   'xppai-init',
   'xppai-papai',
@@ -38,7 +39,7 @@ test('cli: xppai path exits 0 and prints an existing path', () => {
 
 // ── Category 2: Asset discovery ───────────────────────────────────────────────
 
-test('assets.list() returns all 10 skills in sorted order', () => {
+test('assets.list() returns all 11 skills in sorted order', () => {
   const assets = require('../src/assets');
   assert.deepEqual(assets.list(), EXPECTED_SKILLS);
 });
