@@ -1,7 +1,10 @@
 .claude/
 .worktrees/
 reports/
-docs/superpowers/
+docs/
+test/
+XPPAI-REVIEW-CLAUDE/
+CLAUDE.md
 node_modules/
 coverage/
 *.xpo
