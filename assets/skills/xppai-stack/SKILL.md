@@ -21,7 +21,14 @@ Require profiler output or stack trace evidence. If only plain description is pr
 3. Top Bottlenecks
 4. Why Expensive in AX 2009 Terms
 5. Most Likely Root Cause
-6. Recommended Next Investigation or Fix
+6. Critical Objects for Specialist Review
+   Every distinct AOT object (class, table, form, map) that appears in the dominant
+   call path. For each: exact name, type, role in the chain (loop driver / called per
+   iteration / provides data / triggers cascade), and what a specialist should look for.
+   Omit kernel framework objects (SysSetupFormRun, Info, etc.) unless they are the
+   actual cost driver. When the path spans multiple objects, do not collapse it to a
+   single frame.
+7. Recommended Next Investigation or Fix
 
 ## Mode: brief
 
