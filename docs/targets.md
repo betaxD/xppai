@@ -8,6 +8,7 @@ These use packaged skill directories directly and support `install`:
 
 - `claude`
 - `codex`
+- `qwen`
 
 These install repository-local skills and support `install`:
 
@@ -49,6 +50,12 @@ Claude target installs to:
 
 ```text
 ~/.claude/skills
+```
+
+Qwen target installs to:
+
+```text
+~/.qwen/skills
 ```
 
 Copilot target installs GitHub Copilot CLI project skills to the current working repository:

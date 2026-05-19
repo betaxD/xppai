@@ -3,63 +3,73 @@ name: xppai-papai
 description: Use when given any X++ AX 2009 artifact and you need an intelligent senior-engineer analysis — reads the artifact, reasons about what matters most, dynamically selects which skills to apply and in what order, and synthesizes findings into a practical assessment.
 ---
 
-# XppAI Papai — Dynamic Senior Analysis Agent
+# XppAI Papai — Dynamic Senior Analysis (Agent + Skill)
 
-Legacy Codex skill entry point for the canonical Papai agent definition at `assets/agents/xppai-papai/AGENT.md`.
+Dual-mode orchestration:
+- Agent mode: canonical implementation in `assets/agents/xppai-papai/AGENT.md`
+- Skill mode: execute the same operating loop and routing rules in this file
 
-**REQUIRED BACKGROUND:** Load `xppai-init` before applying this skill.
+**Required background:** `xppai-core` + `xppai-domain`  
+**XPO input:** run `xppai-intake` once when present
 
-**MANDATORY PRE-STEP:** If input includes pasted XPO text or a `.xpo` file path, perform XPO intake at most once per user request before any analysis output.
+## Operating Loop
 
-## Overview
+1. Define goal
+2. Inspect evidence
+3. Choose next action
+4. Apply selected skill/tool
+5. Validate result
+6. Stop or continue
 
-Use this skill as a compatibility wrapper. The canonical behavior lives in `assets/agents/xppai-papai/AGENT.md`.
+Loop limits:
+- Maximum 3 investigation cycles unless user explicitly asks for deeper analysis
+- Stop early if the goal is already answered with high-confidence evidence
 
-Compact operating loop summary:
+## Available Actions and Skill Routing
 
-1. Define goal.
-2. Inspect evidence.
-3. Choose next action.
-4. Use skill/tool.
-5. Validate result.
-6. Stop or continue.
+- `triage_support_issue` -> `xppai-support`
+- `explain_artifact` -> `xppai-explain`
+- `analyze_stack_or_trace` -> `xppai-stack`
+- `assess_change_risk` -> `xppai-risk`
+- `analyze_posting_flow` -> `xppai-posting`
+- `review_architecture` -> `xppai-architect`
+- `propose_codefix` -> `xppai-codefix`
+- `prepare_xpo_export` -> `xppai-exportxpo`
 
-Do not exceed 3 investigation cycles unless explicitly requested.
+Routing rule:
+- If the request starts as a business/support symptom without sufficient artifact evidence, route first to `xppai-support`.
 
-Only select skills that serve the user's prompt goal.
+## Skill Selection Policy
 
-When the request begins as a business support symptom, operational error, or troubleshooting question without enough code or XPO evidence to justify artifact-first analysis, route first to `xppai-support`.
+- Choose the minimum useful sequence; do not apply skills that add no value.
+- Prefer brief outputs when possible, then expand only when needed.
+- Use canonical evidence labels: `Confirmed | Likely | Hypothesis | Unknown`.
 
-## XPO Intake Before Analysis
+## XPO Intake and Evidence Gate
 
-Before Step 1, check whether the artifact is XPO input (file path or pasted XPO text with object headers like `CLASS #`, `TABLE #`, `FORM #`).
+- If XPO input exists (file path or pasted XPO object text), run `xppai-intake` once.
+- Use direct local file or pasted text evidence first.
+- Fallback inspection allowed only when:
+  - local file access fails, or
+  - required evidence detail is missing
+- When fallback is used, include:
+  - `Path used: fallback`
+  - `Fallback reason: <file access failure|missing detail> - <concrete detail>`
+- Otherwise include:
+  - `Path used: direct-file`
 
-- For XPO file path input: open the local `.xpo` file directly and read object text needed for this request.
-- For pasted XPO text input: analyze directly from pasted text.
-- If file open fails, continue only after user provides a corrected path or pasted content.
-- Run XPO intake at most once per user request.
-- After successful intake, record and pass this state to selected skills: `XPO intake already completed for this request`.
-- When applying selected skills, pass the completed intake state; selected skills must not run XPO intake again.
-- Do not run unrelated shell commands to inspect repositories or discover context unless the user asked for that or local file access failed and diagnosis is required.
+## Validation Rules
 
-## Execution Decision Gate
+- AX 2009 only
+- No localization-block modifications (`<GBR>`, `<GIN>`, `<GJP>`, `<GSA>`, `<GTH>`)
+- Preserve top-of-method variable declaration convention
+- For codefix, require tag metadata + object location + layer + signature change flag before proposing fix code
 
-After intake state is known, apply this gate before deeper analysis:
+## Stop Conditions
 
-1. Confirm this request is XPO-analysis.
-2. Use direct local-file/pasted-text evidence first.
-3. Allow fallback to additional inspection only if:
-   - file access failed, or
-   - available text is insufficient for required evidence detail.
-4. Papai executes commands and is responsible for enforcing this gate.
+- User goal is answered
+- Next step would add noise only
+- Required context is missing and further analysis would be speculative
+- 3 cycles reached without explicit user request to continue
 
-Required output markers:
-
-- `Path used: direct-file` or `Path used: fallback`
-- If fallback is used: `Fallback reason: <file access failure|missing detail> - <concrete detail>`
-
-For action definitions, validation rules, and stop conditions, follow `assets/agents/xppai-papai/AGENT.md`.
-
-## Export Integration
-
-If the user asks to export analyzed objects to XPO files after assessment, invoke `xppai-exportxpo` with the object list. The skill generates a ready-to-paste X++ export job.
+For full canonical mission/action language and long-form guardrails, align with `assets/agents/xppai-papai/AGENT.md`.

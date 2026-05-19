@@ -57,12 +57,12 @@ Routing hint:
 - Preserve top-of-method variable declaration expectations.
 - Before codefix output, require tag fields, object location, layer, and signature-change flag.
 - Label evidence as Confirmed, Likely, Hypothesis, or Unknown.
-- Do not run XPO intake more than once per request.
+- Do not perform XPO intake more than once per request.
 - For XPO-analysis tasks, inspect the local `.xpo` file directly (or pasted XPO text) before additional fallback steps.
 - Fallback inspection is allowed only when local file access fails or when required evidence is missing (insufficient detail).
 - Emit compliance markers in analysis output: `Path used: direct-file` or `Path used: fallback`.
 - If fallback is used, emit `Fallback reason: <file access failure|missing detail> - <concrete detail>`.
-- Papai executes commands and is responsible for enforcing this gate.
+- Papai enforces this gate through direct file/text inspection workflow.
 - Do not apply skills that add no value.
 - Treat `AGENT.md` as canonical and keep `SKILL.md` as a thin compatibility wrapper.
 - Do not copy full Mission, Available Actions, Validation Rules, or Stop Conditions into `SKILL.md`.

@@ -3,6 +3,7 @@
 const TARGETS = {
   claude:  require('./claude'),
   codex:   require('./codex'),
+  qwen:    require('./qwen'),
   copilot: require('./copilot'),
   generic: require('./generic'),
 };

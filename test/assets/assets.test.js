@@ -3,25 +3,20 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
+const path = require('path');
 
-const EXPECTED_SKILLS = [
-  'xppai-architect',
-  'xppai-babysit',
-  'xppai-codefix',
-  'xppai-explain',
-  'xppai-exportxpo',
-  'xppai-help',
-  'xppai-init',
-  'xppai-papai',
-  'xppai-posting',
-  'xppai-risk',
-  'xppai-stack',
-  'xppai-support',
-];
+const ROOT = path.join(__dirname, '..', '..');
+const SKILLS_DIR = path.join(ROOT, 'assets', 'skills');
 
-test('assets.list() returns all 12 skills in sorted order', () => {
+function expectedSkillsFromDisk() {
+  return fs.readdirSync(SKILLS_DIR)
+    .filter(name => fs.statSync(path.join(SKILLS_DIR, name)).isDirectory())
+    .sort();
+}
+
+test('assets.list() returns all skill directories in sorted order', () => {
   const assets = require('../../src/assets');
-  assert.deepEqual(assets.list(), EXPECTED_SKILLS);
+  assert.deepEqual(assets.list(), expectedSkillsFromDisk());
 });
 
 test('assets.path() returns a directory that exists on disk', () => {

@@ -81,6 +81,7 @@ Install one runtime at a time when needed:
 ```bash
 xppai install --target codex
 xppai install --target claude
+xppai install --target qwen
 xppai install --target copilot
 ```
 
@@ -90,6 +91,7 @@ xppai install --target copilot
 
 - `claude`
 - `codex`
+- `qwen`
 - `copilot`
 
 For `copilot`, install writes GitHub Copilot CLI project skills under `.github/skills` inside the current repository.

@@ -26,10 +26,11 @@ Supported install targets:
 
 - `codex`
 - `claude`
+- `qwen`
 - `copilot`
 - `all`
 
-`all` installs Codex personal skills, Claude Code personal skills, and GitHub Copilot CLI project skills for the current working directory.
+`all` installs Codex personal skills, Claude Code personal skills, Qwen personal skills, and GitHub Copilot CLI project skills for the current working directory.
 
 ## XPO Commands
 

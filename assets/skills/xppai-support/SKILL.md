@@ -5,7 +5,7 @@ description: Use when an AX 2009 issue starts as a business symptom or support e
 
 # XppAI Support
 
-**REQUIRED BACKGROUND:** Load `xppai-init` before applying this skill.
+**REQUIRED BACKGROUND:** Load `xppai-core` before applying this skill.
 
 ## Purpose
 

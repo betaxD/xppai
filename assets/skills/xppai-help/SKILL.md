@@ -9,7 +9,9 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 
 | Skill | Purpose |
 |-------|---------|
-| `xppai-init` | Shared AX 2009 foundation — auto-loads on any X++ task |
+| `xppai-core` | Shared AX 2009 core foundation — always load |
+| `xppai-domain` | Deep analysis foundation for posting/performance/risk/architecture |
+| `xppai-intake` | Canonical one-time XPO intake when XPO input is present |
 | `xppai-explain` | Understand unfamiliar methods, classes, forms, or tables |
 | `xppai-exportxpo` | Generate a ready-to-paste X++ job for exporting AOT objects to XPO files |
 | `xppai-stack` | Analyze profiler traces and stack traces |

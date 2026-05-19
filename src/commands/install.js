@@ -3,7 +3,7 @@
 const assets = require('../assets');
 const { loadTarget, TARGETS } = require('../targets');
 
-const INSTALL_TARGETS = ['claude', 'codex', 'copilot'];
+const INSTALL_TARGETS = ['claude', 'codex', 'qwen', 'copilot'];
 
 module.exports = function install(flags, _args) {
   const target = flags['--target'];

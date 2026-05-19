@@ -4,8 +4,8 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const nodePath = require('path');
 
-const ADAPTER_NAMES = ['claude', 'codex', 'copilot', 'generic'];
-const INSTALLABLE = new Set(['claude', 'codex', 'copilot']);
+const ADAPTER_NAMES = ['claude', 'codex', 'qwen', 'copilot', 'generic'];
+const INSTALLABLE = new Set(['claude', 'codex', 'qwen', 'copilot']);
 
 for (const name of ADAPTER_NAMES) {
   test(`adapter ${name}: exports required methods`, () => {
@@ -46,6 +46,16 @@ test('adapter claude: installs into ~/.claude/skills', () => {
     result,
     nodePath.join(require('os').homedir(), '.claude', 'skills'),
     'claude.resolveInstallDir() must target ~/.claude/skills'
+  );
+});
+
+test('adapter qwen: installs into ~/.qwen/skills', () => {
+  const adapter = require('../../src/targets/qwen');
+  const result = adapter.resolveInstallDir({});
+  assert.equal(
+    result,
+    nodePath.join(require('os').homedir(), '.qwen', 'skills'),
+    'qwen.resolveInstallDir() must target ~/.qwen/skills'
   );
 });
 

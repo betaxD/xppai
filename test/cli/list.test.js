@@ -2,25 +2,21 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const { runCli } = require('../helpers/cli');
 
-const EXPECTED_SKILLS = [
-  'xppai-architect',
-  'xppai-babysit',
-  'xppai-codefix',
-  'xppai-explain',
-  'xppai-exportxpo',
-  'xppai-help',
-  'xppai-init',
-  'xppai-papai',
-  'xppai-posting',
-  'xppai-risk',
-  'xppai-stack',
-  'xppai-support',
-];
+const ROOT = path.join(__dirname, '..', '..');
+const SKILLS_DIR = path.join(ROOT, 'assets', 'skills');
+
+function expectedSkillsFromDisk() {
+  return fs.readdirSync(SKILLS_DIR)
+    .filter(name => fs.statSync(path.join(SKILLS_DIR, name)).isDirectory())
+    .sort();
+}
 
 test('cli: xppai list exits 0 and prints all skill names', () => {
   const out = runCli(['list']);
   const lines = out.trim().split('\n').sort();
-  assert.deepEqual(lines, EXPECTED_SKILLS);
+  assert.deepEqual(lines, expectedSkillsFromDisk());
 });

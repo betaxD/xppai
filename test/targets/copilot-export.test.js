@@ -22,7 +22,8 @@ test('copilot adapter exports Copilot CLI skill directories', () => {
 
     const papaiContent = fs.readFileSync(papaiSkill, 'utf8');
     assert.match(papaiContent, /^---\r?\nname:\s*xppai-papai/m);
-    assert.match(papaiContent, /Dynamic Senior Analysis Agent/);
+    assert.match(papaiContent, /Dynamic Senior Analysis/i);
+    assert.match(papaiContent, /assets\/agents\/xppai-papai\/AGENT\.md/i);
 
     assert.ok(!fs.existsSync(path.join(tempDir, 'copilot-instructions.md')));
     assert.ok(!fs.existsSync(path.join(tempDir, 'instructions')));

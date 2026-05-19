@@ -7,6 +7,10 @@ function skillsDir() {
   return nodePath.join(__dirname, '..', 'assets', 'skills');
 }
 
+function commandsDir() {
+  return nodePath.join(__dirname, '..', 'assets', 'commands');
+}
+
 function list() {
   const dir = skillsDir();
   return fs.readdirSync(dir)
@@ -18,4 +22,4 @@ function assetPath() {
   return skillsDir();
 }
 
-module.exports = { list, path: assetPath };
+module.exports = { list, path: assetPath, commandsPath: commandsDir };
