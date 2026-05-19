@@ -39,6 +39,7 @@ Specialist technique for reading AX 2009 X++ profiler outputs and code execution
 - Prioritize the dominant path shown by profiler call count and cumulative duration
 - Distinguish explicitly: **Evidence** (seen in trace) | **Hypothesis** (inferred) | **Recommendation** (next step)
 - Prefer practical explanations over academic ones
+- When the dominant call path spans multiple AOT objects, track each distinct object (class, table, form, map) that appears in the chain — do not collapse the path to a single frame or a single method name
 
 ## Output Format
 
@@ -63,7 +64,20 @@ Always produce output in this exact structure:
    Single most probable structural cause (e.g., "calc() called per line
    inside a loop that iterates all SalesParmLine records").
 
-6. Recommended Next Investigation or Fix
+6. Critical Objects for Specialist Review
+   Every distinct AOT object (class, table, form, map) that appears in the
+   dominant call path, regardless of where the root cause sits.
+
+   | Object | Type | Role in call path | Why it needs review |
+   Each entry must state: exact AOT name, object type, what role it plays
+   in the execution chain (loop driver / called per iteration / provides data /
+   triggers cascade), and what a specialist should look for in it.
+
+   Omit framework kernel objects (SysSetupFormRun, Info, etc.) unless they are
+   the actual cost driver. Include every custom and standard business object
+   that is part of the path.
+
+7. Recommended Next Investigation or Fix
    Concrete: what to instrument, what to cache, what to move outside the loop.
 ```
 
