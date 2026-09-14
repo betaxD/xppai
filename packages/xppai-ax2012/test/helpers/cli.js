@@ -13,6 +13,7 @@ function runCli(args, options = {}) {
       cwd: options.cwd || PACKAGE_ROOT,
       encoding: 'utf8',
       env: options.env || process.env,
+      input: options.input,
     },
   );
 }

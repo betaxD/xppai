@@ -24,6 +24,8 @@ function run(flags, positionals) {
   }
 
   const handlers = {
+    load: require('./load'),
+    'load-stdin': require('./load-stdin'),
     snapshot: require('./snapshot'),
     list: require('./list'),
     read: require('./read'),

@@ -1,0 +1,7 @@
+CLASS #DemoIncomplete
+SOURCE #run
+public void run()
+{
+    info("missing closer");
+}
+ENDSOURCE
