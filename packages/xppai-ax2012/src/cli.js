@@ -36,10 +36,6 @@ function printHelp() {
   );
 }
 
-function unavailable(command) {
-  throw new Error(`${command} is not implemented yet`);
-}
-
 async function run(argv = process.argv) {
   const { command, positionals, flags } = parseArgs(argv.slice(2));
 
@@ -60,8 +56,8 @@ async function run(argv = process.argv) {
   const handlers = {
     list: require('./commands/list'),
     path: require('./commands/path'),
-    install: () => unavailable('install'),
-    export: () => unavailable('export'),
+    install: require('./commands/install'),
+    export: require('./commands/export'),
     xpo: require('./commands/xpo'),
   };
   const handler = handlers[command];

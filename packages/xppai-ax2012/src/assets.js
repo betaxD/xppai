@@ -9,6 +9,14 @@ function skillsDir() {
   return nodePath.join(__dirname, '..', 'assets', 'skills');
 }
 
+function assetRoot() {
+  return nodePath.join(__dirname, '..', 'assets');
+}
+
+function commandsDir() {
+  return nodePath.join(assetRoot(), 'commands');
+}
+
 function list() {
   const root = skillsDir();
   const actual = fs.readdirSync(root, { withFileTypes: true })
@@ -26,4 +34,4 @@ function list() {
   return actual;
 }
 
-module.exports = { list, path: skillsDir };
+module.exports = { commandsPath: commandsDir, list, path: skillsDir, root: assetRoot };
