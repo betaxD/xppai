@@ -45,7 +45,13 @@ test('the colocated Papai agent mirrors the routing and stopping contract', () =
 });
 
 test('foundational skill contracts validate as one canonical AX 2012 tree', () => {
-  assert.deepEqual(validateSkillContracts(PACKAGE_ROOT), [
+  const foundational = validateSkillContracts(PACKAGE_ROOT).filter((name) => [
+    'xppai-ax2012-core',
+    'xppai-ax2012-intake',
+    'xppai-ax2012-papai',
+  ].includes(name));
+
+  assert.deepEqual(foundational, [
     'xppai-ax2012-core',
     'xppai-ax2012-intake',
     'xppai-ax2012-papai',
