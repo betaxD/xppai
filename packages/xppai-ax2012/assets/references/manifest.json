@@ -43,6 +43,48 @@
       "baseline": "2012-R3",
       "domains": ["data-model", "database", "number-sequences", "synchronization"],
       "status": "supported"
+    },
+    {
+      "id": "business.financial-dimensions",
+      "path": "business/financial-dimensions.md",
+      "baseline": "2012-R3",
+      "domains": ["financial-dimensions", "main-account", "accounting-distributions"],
+      "status": "supported"
+    },
+    {
+      "id": "business.ledger-posting",
+      "path": "business/ledger-posting.md",
+      "baseline": "2012-R3",
+      "domains": ["ledger-posting", "formletter", "source-documents", "subledger"],
+      "status": "gated"
+    },
+    {
+      "id": "business.inventory-trade",
+      "path": "business/inventory-trade.md",
+      "baseline": "2012-R3",
+      "domains": ["inventory", "sales", "purchase", "trade"],
+      "status": "supported"
+    },
+    {
+      "id": "business.retail",
+      "path": "business/retail.md",
+      "baseline": "2012-R3",
+      "domains": ["retail", "channel", "store"],
+      "status": "gated"
+    },
+    {
+      "id": "business.workflow-ssrs",
+      "path": "business/workflow-ssrs.md",
+      "baseline": "2012-R3",
+      "domains": ["workflow", "ssrs", "reporting"],
+      "status": "deferred"
+    },
+    {
+      "id": "business.regionalization",
+      "path": "business/regionalization.md",
+      "baseline": "2012-R3",
+      "domains": ["regionalization", "localization", "country-region"],
+      "status": "gated"
     }
   ]
 }
