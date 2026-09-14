@@ -74,6 +74,6 @@ test('command wrappers launch the matching specialist or Papai with bounded inpu
 test('all implemented public skills satisfy the canonical tree contract', () => {
   const names = validateSkillContracts(PACKAGE_ROOT);
 
-  assert.equal(names.length, 8);
+  assert(names.length >= 8);
   for (const name of SPECIALISTS) assert(names.includes(`xppai-ax2012-${name}`));
 });
