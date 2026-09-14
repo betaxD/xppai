@@ -1,8 +1,8 @@
-# xppAI AX 2012 R3 — Architecture Draft
+# xppAI AX 2012 R3 — Architecture
 
-**Status:** Draft v3 — architectural and AX 2012 R3 technical reviews incorporated  
-**Date:** 2026-09-08  
-**Scope:** Design only; no implementation is authorized by this document.
+**Status:** Approved architecture v1 — synchronized with the reviewed implementation plan
+**Date:** 2026-09-08
+**Scope:** Architecture contract. Implementation begins only through an explicit execution request against the reviewed plan.
 
 ## 1. Objective
 
@@ -32,6 +32,9 @@ The main orchestration model remains Papai. Public specialist skills can also be
 - Runtime evidence is modeled across host, execution engine, identity, partition, company, security, transaction, and deployment artifact.
 - Application build, kernel build, CU, and relevant hotfixes qualify the R3 baseline for production-ready guidance.
 - XPO is partial evidence and cannot by itself prove effective top-layer behavior, model ownership, subscribers, or installation-portable object IDs.
+- New AX 2012 specifications, plans, documentation, source, tests, identifiers, diagnostics, and commit messages are written in English.
+- The initial package uses Node.js 18 or newer, CommonJS, built-in Node.js APIs, and no runtime dependencies.
+- The initial independently published package version is `0.1.0`.
 
 ## 3. Repository Boundary
 
@@ -51,8 +54,13 @@ xppai/
         ├── src/
         ├── assets/
         │   ├── skills/
-        │   └── commands/
+        │   ├── commands/
+        │   └── references/
+        │       ├── platform/
+        │       ├── business/
+        │       └── manifest.json
         ├── docs/
+        ├── scripts/
         └── test/
 ```
 
@@ -105,43 +113,43 @@ xppai-ax2012-help
 
 ## 6. Internal Domain References
 
-Domain knowledge is not exposed as one public skill per framework. It is stored under the core skill and loaded only when relevant.
+Domain knowledge is not exposed as one public skill per framework. It is stored in the package's canonical reference tree and loaded only when relevant.
 
 ```text
-assets/skills/xppai-ax2012-core/
-├── SKILL.md
-└── references/
-    ├── runtime-cil-eventing.md
-    ├── execution-security-context.md
-    ├── modelstore-deployment.md
-    ├── data-model-database.md
-    ├── sysoperation.md
-    ├── aif-services.md
-    ├── formletter-posting.md
-    ├── source-document-accounting.md
-    ├── financial-dimensions.md
-    ├── product-inventory.md
-    ├── number-sequences.md
-    ├── security-xds.md
-    └── manifest.json
+assets/references/
+├── platform/
+│   ├── model-store.md
+│   ├── xpp-language.md
+│   ├── sysoperation.md
+│   ├── aif.md
+│   ├── security.md
+│   └── data-frameworks.md
+├── business/
+│   ├── financial-dimensions.md
+│   ├── ledger-posting.md
+│   ├── inventory-trade.md
+│   ├── retail.md
+│   ├── workflow-ssrs.md
+│   └── regionalization.md
+└── manifest.json
 ```
 
-The core instruction must explicitly state that reference packs are not all loaded by default.
+The core instruction must explicitly state that reference packs are not all loaded by default. Skills resolve references through `assets/references/manifest.json`; no skill owns a private or mirrored reference tree.
 
 Examples:
 
 ```text
 Explain an existing SysOperation
-→ explain + sysoperation.md
+→ explain + platform.sysoperation
 
 Implement a new SysOperation
-→ dev + sysoperation.md + runtime-cil-eventing.md
+→ dev + platform.sysoperation + platform.xpp-language
 
 Assess an AIF authorization failure
-→ risk + aif-services.md + security-xds.md
+→ risk + platform.aif + platform.security
 
 Fix an event handler bug
-→ codefix + runtime-cil-eventing.md
+→ codefix + platform.xpp-language
 ```
 
 ### Reference Manifest
@@ -149,50 +157,44 @@ Fix an event handler bug
 `manifest.json` is the authoritative routing contract for reference packs. Every entry contains:
 
 - stable `id`;
-- install-relative `path`;
+- path relative to `assets/references/`;
+- `baseline: "2012-R3"`;
 - supported `domains`;
-- allowed `intents`;
-- prerequisite reference IDs in `requires`;
-- capability state: `supported`, `gated`, or `deferred`;
-- reference revision.
+- capability `status`: `supported`, `gated`, or `deferred`.
 
-All paths are relative to the installed `xppai-ax2012-core` skill. The manifest must be validated for missing files, duplicate IDs, invalid intents, unresolved dependencies, and cycles. Specialists may load only references permitted for their intent.
+Manifest validation rejects missing files, invalid baselines, invalid statuses, and empty domain lists. Specialists load the minimum references selected by domain and capability status.
 
 ### Rule Coverage and Enforcement
 
-Every accepted AX 2012 R3 review rule must have exactly one authoritative home and at least one enforcement mechanism:
+Every accepted AX 2012 R3 review rule must have one authoritative home and at least one enforcement mechanism:
 
 | Kind of rule | Authoritative home | Minimum enforcement |
 |---|---|---|
-| Cross-cutting invariant | `xppai-ax2012-core/SKILL.md` | skill-contract test plus an acceptance scenario |
-| Framework-specific behavior | one reference pack declared by `manifest.json` | reference schema/manifest validation plus a domain scenario |
+| Cross-cutting invariant | `xppai-ax2012-core/SKILL.md` | skill-contract test or technical-review scan |
+| Framework-specific behavior | one reference pack declared by `manifest.json` | manifest and reference-content tests |
 | Environment-dependent safety condition | capability matrix or production-readiness gate | negative test proving that missing evidence blocks a definitive claim |
 | Deferred or unsupported behavior | capability matrix | routing test proving that the skill returns a gap report instead of invented implementation guidance |
 
-A rule must not be copied into several packs as independent prose. Secondary packs reference the authoritative rule ID through `manifest.json`. CI validates that every normative rule ID is unique, reachable from at least one supported intent, and covered by a named contract or acceptance test. This provides complete rule coverage without multiplying public specialists or loading every framework document on every request.
+A rule must not be copied into several packs as independent prose. When several domains depend on the same invariant, the secondary pack names the authoritative pack instead of redefining the rule. Skill-contract tests validate routing, manifest reachability, capability status, and the required `Evidence required` section in every initial reference.
 
 ### Initial Capability Matrix
 
-| Domain | Explain | Architect | Risk | Codefix | Dev | Initial state |
+| Reference ID | Explain | Architect | Risk | Codefix | Dev | Initial state |
 |---|---:|---:|---:|---:|---:|---|
-| General X++ R3 | Yes | Yes | Yes | Yes | Yes | Supported |
-| Execution and security context | Yes | Yes | Yes | Yes | Yes | Supported |
-| Runtime, CIL, eventing, managed interop/CAS | Yes | Yes | Yes | Yes | Yes | Supported |
-| Model store and deployment | Yes | Yes | Yes | Yes | Yes | Supported |
-| Data model and database | Yes | Yes | Yes | Yes | Yes | Supported |
-| SysOperation and batch | Yes | Yes | Yes | Yes | Yes | Supported |
-| AIF and services | Yes | Yes | Yes | Yes | Yes | Supported |
-| Security and XDS | Yes | Yes | Yes | Yes | Yes | Supported |
-| Number sequences | Yes | Yes | Yes | Yes | Yes | Supported |
-| Financial dimensions | Yes | Yes | Yes | Yes | Yes | Supported with standard framework APIs only |
-| Product and inventory | Yes | Yes | Yes | Yes | Yes | Supported for dependencies required by initial posting scope |
-| FormLetter posting | Yes | Yes | Yes | Yes | Yes | Gated by execution, dimensions, product/inventory, and affected business references |
-| Source-document accounting | Yes | Yes | Yes | Yes | Yes | Gated by financial dimensions and supported document type |
-| SSRS/RDP, DIXF/DMF | Preliminary only | Preliminary only | Gap report | No | No | Deferred; not covered generically by AIF/dev |
-| Workflow, organization/GAB, Enterprise Portal | Preliminary only | Preliminary only | Gap report | No | No | Deferred |
-| WHS, TMS, Retail/Commerce | Preliminary only | Preliminary only | Gap report | No | No | Explicitly outside initial scope |
+| `platform.model-store` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `platform.xpp-language` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `platform.sysoperation` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `platform.aif` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `platform.security` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `platform.data-frameworks` | Yes | Yes | Yes | Yes | Yes | Supported |
+| `business.financial-dimensions` | Yes | Yes | Yes | Yes | Yes | Supported with standard framework APIs only |
+| `business.ledger-posting` | Yes | Yes | Yes | Yes | Yes | Gated by execution, dimensions, inventory/trade, and affected document-flow evidence |
+| `business.inventory-trade` | Yes | Yes | Yes | Yes | Yes | Supported for the initial sales, purchase, inventory, and posting scope |
+| `business.retail` | Yes | Yes | Yes | Yes, after gate | Yes, after gate | Gated by installed Retail components and configuration evidence |
+| `business.workflow-ssrs` | Preliminary only | Preliminary only | Gap report | No | No | Deferred; reference included to define the evidence gap |
+| `business.regionalization` | Yes | Yes | Yes | Yes, after gate | Yes, after gate | Gated by explicit country/region, model/layer, configuration-key, and metadata evidence |
 
-Production-ready code is allowed only for a domain whose reference state is `supported`, with all `requires` references also supported. A `gated` domain must satisfy its declared prerequisites. A deferred domain may receive only preliminary architecture, artifact inventory, and an explicit knowledge-gap report.
+Production-ready code is allowed only for a domain whose reference state is `supported`, or for a `gated` domain after the evidence requirements in that pack pass. A deferred domain may receive only preliminary architecture, artifact inventory, and an explicit knowledge-gap report. Including a gated or deferred reference in the initial package does not imply production-ready implementation support.
 
 ## 7. Papai Orchestration
 
@@ -210,26 +212,25 @@ request
   → synthesize
 ```
 
-Canonical Papai actions:
+Canonical Papai routed intents:
 
-- `explain_artifact`
-- `review_architecture`
-- `assess_change_risk`
-- `diagnose_existing_bug`
-- `develop_new_feature`
-- `inspect_xpo`
-- `synthesize_answer`
-- `stop_with_missing_context`
+- `explain`
+- `architect`
+- `risk`
+- `codefix`
+- `dev`
 
-Action mapping:
+Each routed intent maps directly to the specialist with the same suffix:
 
 ```text
-explain_artifact       → explain
-review_architecture    → architect
-assess_change_risk     → risk
-diagnose_existing_bug  → codefix
-develop_new_feature    → dev
+explain   → xppai-ax2012-explain
+architect → xppai-ax2012-architect
+risk      → xppai-ax2012-risk
+codefix   → xppai-ax2012-codefix
+dev       → xppai-ax2012-dev
 ```
+
+XPO inspection, prerequisite loading, validation, synthesis, and stopping with missing context are orchestration phases, not additional routed intent names.
 
 Papai uses three investigation cycles as a default cost limit, not as evidence that an investigation is sufficient. One cycle is `inspect evidence → choose action → use skill/tool → validate`; intake and prerequisite loading do not consume independent cycles. If essential evidence is still missing at the limit, Papai returns `Unknown` plus the next required evidence and must not synthesize a positive production-readiness conclusion merely because the counter was exhausted. The user may explicitly authorize deeper investigation.
 
@@ -342,9 +343,9 @@ The core remains small and contains only cross-cutting requirements:
 - Check effective top-layer implementations, xRef/callers, overrides, delegates, pre/post handlers, and external subscribers when assessing impact. Missing multi-layer/xRef evidence remains `Unknown`.
 - State compile, database synchronization, CIL generation, deployment, and AOS implications when applicable.
 
-## 12. SysOperation Reference Scope
+## 12. `platform.sysoperation` Reference Scope
 
-`sysoperation.md` covers:
+`platform/sysoperation.md` covers:
 
 - controllers and entry points;
 - data contracts;
@@ -372,9 +373,9 @@ Minimum production-ready pattern:
 
 The reference supports explain, architect, risk, codefix, and dev intents.
 
-## 13. AIF and Services Reference Scope
+## 13. `platform.aif` Reference Scope
 
-`aif-services.md` covers:
+`platform/aif.md` covers:
 
 - inbound and outbound integration ports;
 - custom, document, and system services;
@@ -407,7 +408,7 @@ The reference supports explain, architect, risk, codefix, and dev intents.
 
 ## 14. Other Initial Reference Scopes
 
-### Runtime, CIL, and Eventing
+### `platform.xpp-language`: Runtime, CIL, Eventing, and Execution Context
 
 - X++ attributes;
 - delegates and event subscriptions;
@@ -423,9 +424,7 @@ The reference supports explain, architect, risk, codefix, and dev intents.
 
 Pre/post handlers are not Chain of Command and have no `next` call. The reference documents supported handler signatures and the appropriate `XppPrePostArgs` accessors for instance, arguments, and return values. It also covers inherited transaction/tier context, CIL compatibility, exception behavior, multiple subscribers, and the prohibition on relying on subscriber order unless the platform contract proves it.
 
-### Execution and Security Context
-
-`execution-security-context.md` provides one cross-cutting model used by SysOperation, AIF, posting, risk, codefix, and dev:
+The reference provides one cross-cutting execution model used by SysOperation, AIF, posting, risk, codefix, and dev:
 
 ```text
 entry point
@@ -441,7 +440,7 @@ entry point
 
 `changeCompany` and `crossCompany` operate only across companies in the current partition; they are never presented as a way to cross partitions. Guidance must not hardcode `DAT`, `Initial`, or another default. Batch and service output records effective partition, company, and user/service identity and must not silently fall back to defaults when the contract requires explicit context.
 
-### Model Store and Deployment
+### `platform.model-store`: Model Store and Deployment
 
 - model store;
 - layers and models;
@@ -458,9 +457,9 @@ A model belongs to one layer, and each element in a layer belongs to one model. 
 
 Deployment is expressed as playbooks by artifact/change type, not as an unordered checklist. A playbook covers coordinated backups, application/kernel build validation, layer/model/dependency checks, AOS draining/stopping when applicable, import, conflict handling, full compile and best-practice checks, destructive database-synchronization assessment, synchronization, full CIL, restart/refresh of every AOS, and impacted SSRS, Enterprise Portal, assembly, service, and port operations. Rollback must account for both business and model-store databases and for schema/data changes.
 
-### Data Model and Database
+### `platform.data-frameworks`: Data Model and Database
 
-`data-model-database.md` covers:
+`platform/data-frameworks.md` covers:
 
 - surrogate and replacement keys;
 - table inheritance;
@@ -473,18 +472,18 @@ Deployment is expressed as playbooks by artifact/change type, not as an unordere
 
 Field removal/type changes, index/relation changes, table-inheritance changes, and synchronization that can drop or transform data require an explicit data assessment, backup, validation query, and rollback plan before production-ready guidance.
 
-### Posting
+### `business.ledger-posting`: Posting
 
-Posting is split into two references because FormLetter orchestration and source-document accounting are related but not one universal sequence.
+One ledger-posting reference covers both FormLetter orchestration and source-document accounting while preserving them as distinct, non-universal flows.
 
-`formletter-posting.md` covers:
+Its FormLetter section covers:
 
 - Sales and Purchase FormLetter flows by document status;
 - parm tables, parm data, query/selection, controllers, and services;
 - partial, pro forma, batch, intercompany, charges, tax, inventory, commitment/budget, and print-management scenarios when applicable;
 - posting profiles, generated journals/vouchers, side effects, and fragile sequencing.
 
-`source-document-accounting.md` covers:
+Its source-document-accounting section covers:
 
 - only document types proven to use the source-document framework;
 - accounting distributions and dimension defaulting;
@@ -494,7 +493,7 @@ Posting is split into two references because FormLetter orchestration and source
 
 The skill must not imply that every FormLetter path uses source documents or distributions identically. Production-ready guidance prohibits direct insert/update/delete of posted journals, vouchers, `InventTrans`, `AccountingDistribution`, dimension-combination tables, or other cataloged framework-owned/posted tables. It must use the standard service/framework for the exact R3 document flow.
 
-### Security and XDS
+### `platform.security`: Security and XDS
 
 - roles, duties, and privileges;
 - permissions and entry points;
@@ -509,7 +508,7 @@ The skill must not imply that every FormLetter path uses source documents or dis
 
 Every exposed service operation, RDP/server operation, and menu entry point must have the appropriate `SysEntryPointAttribute`, privilege, duty, role assignment, and underlying permissions. Transport authentication does not itself grant AX functional authorization. Permission inference must be reviewed for indirect/dynamic calls and protected tables, and XDS must be tested under the effective non-admin identity.
 
-### Financial Dimensions
+### `business.financial-dimensions`: Financial Dimensions
 
 - main accounts, account structures, and account combinations;
 - `DefaultDimension` versus `LedgerDimension` semantics;
@@ -520,24 +519,38 @@ Every exposed service operation, RDP/server operation, and menu entry point must
 - prohibition of direct writes to framework-owned dimension-combination tables;
 - validation and regression scenarios for posting, AIF, SysOperation, and batch flows that carry dimensions.
 
-Posting that reads, defaults, changes, distributes, validates, or persists financial dimensions is not production-ready unless the relevant `formletter-posting.md` or `source-document-accounting.md` reference and `financial-dimensions.md` are loaded and their evidence gates pass.
+Posting that reads, defaults, changes, distributes, validates, or persists financial dimensions is not production-ready unless `business.ledger-posting` and `business.financial-dimensions` are loaded and their evidence gates pass.
 
-### Product and Inventory
+### `business.inventory-trade`: Product, Inventory, and Trade
 
-`product-inventory.md` initially covers the dependencies needed to reason safely about posting:
+`business/inventory-trade.md` covers the dependencies needed to reason safely about sales, purchase, inventory, and posting flows:
 
 - product, product master, variant, and released-product boundaries;
 - product, storage, and tracking dimension groups;
 - `InventDim` construction and reuse;
 - `InventTrans` ownership and state transitions;
 - reservations, marking, on-hand context, and posting side effects;
+- sales and purchase order lifecycle evidence;
+- costing evidence gates;
 - prohibition on direct mutation of framework-owned inventory transaction state.
 
-WHS, TMS, and Retail/Commerce remain outside the initial production-ready scope even when they touch inventory.
+WHS, TMS, and Commerce remain outside the initial production-ready scope even when they touch inventory. Retail is governed separately by `business.retail`.
 
-### Number Sequences
+### Number Sequences Within `platform.data-frameworks`
 
-`number-sequences.md` covers scoped number-sequence references, company/organization context, allocation timing, continuous-sequence behavior, transaction/rollback implications, batch/concurrency risks, and supported framework APIs. Dev/codefix must not hardcode identifiers or allocate numbers speculatively inside loops.
+The data-frameworks reference covers scoped number-sequence references, company/organization context, allocation timing, continuous-sequence behavior, transaction/rollback implications, batch/concurrency risks, and supported framework APIs. Dev/codefix must not hardcode identifiers or allocate numbers speculatively inside loops.
+
+### `business.retail`: Retail
+
+`business/retail.md` is included in the initial package as a gated reference. It requires evidence of installed Retail components, configuration, channel/store context, model/layer ownership, and the affected transaction flow before codefix or dev can move beyond preliminary guidance. It does not expand the initial scope to Commerce generally.
+
+### `business.workflow-ssrs`: Workflow and SSRS
+
+`business/workflow-ssrs.md` is included to make deferred capability explicit. It supports preliminary explanation, architecture inventory, and gap reporting, but does not authorize production-ready codefix or dev guidance in the initial release. The pack lists the exact workflow or reporting artifacts and environment evidence required for a future capability promotion.
+
+### `business.regionalization`: Regionalization
+
+`business/regionalization.md` is gated by explicit country/region scope, model and layer evidence, configuration keys, metadata, and code guards. A production-ready recommendation must identify the affected regional behavior and may not generalize an AX 2009-only tag list into an AX 2012 policy.
 
 ## 15. XPO Intake, Parser, and Cache
 
@@ -545,7 +558,28 @@ Direct local-file intake remains the primary evidence path. Pasted XPO is analyz
 
 ### Parser Contract
 
-The parser uses a versioned top-level object registry instead of treating every `Token #Name` line as an AOT object. Each registered type defines:
+The parser uses a versioned top-level object registry instead of treating every `Token #Name` line as an AOT object. The immutable version 1 registry is:
+
+| Raw token or aliases | Canonical type | Required closer |
+|---|---|---|
+| `CLASS` | `Class` | `ENDCLASS` |
+| `TABLE` | `Table` | `ENDTABLE` |
+| `FORM` | `Form` | `ENDFORM` |
+| `QUERY` | `Query` | `ENDQUERY` |
+| `VIEW` | `View` | `ENDVIEW` |
+| `MAP` | `Map` | `ENDMAP` |
+| `ENUM` | `Enum` | `ENDENUM` |
+| `EDT`, `EDTEXT`, `DATATYPE` | `ExtendedDataType` | `ENDEDT` |
+| `JOB` | `Job` | `ENDJOB` |
+| `PROJECT` | `Project` | `ENDPROJECT` |
+| `SERVICE` | `Service` | `ENDSERVICE` |
+| `SERVICEGROUP` | `ServiceGroup` | `ENDSERVICEGROUP` |
+| `SECURITYROLE` | `SecurityRole` | `ENDSECURITYROLE` |
+| `SECURITYDUTY` | `SecurityDuty` | `ENDSECURITYDUTY` |
+| `SECURITYPRIVILEGE` | `SecurityPrivilege` | `ENDSECURITYPRIVILEGE` |
+| `SECURITYPOLICY` | `SecurityPolicy` | `ENDSECURITYPOLICY` |
+
+Every version 1 entry uses the `required-closer` completeness policy and permits a new object only at a column-zero boundary between top-level objects. `SOURCE` is a legal nested header and never starts a top-level object. Each registered type defines:
 
 - raw top-level tokens and aliases;
 - canonical type;
@@ -646,7 +680,17 @@ xppai-ax2012 xpo grep
 xppai-ax2012 xpo export-modified
 ```
 
-Initial targets mirror the existing package: Codex, Claude, Qwen, Copilot, and generic export.
+Initial targets mirror the existing package with the following exact installation and export behavior:
+
+| Target | Install destinations | Export below `--out` |
+|---|---|---|
+| Claude | `~/.claude/skills`, `~/.claude/commands` | `skills/`, `commands/` |
+| Codex | `~/.codex/skills` | `skills/` |
+| Qwen | `~/.qwen/skills` | `skills/` |
+| Copilot | current repository `.github/skills` | `.github/skills/` |
+| Generic | not installable | `skills/`, `commands/` |
+
+`generic` is export-only. The `install` command rejects it instead of treating `--out` as an installation destination.
 
 ### Installation Ownership
 
@@ -707,7 +751,7 @@ When external research is required, prefer primary Microsoft documentation and k
 - XPO intake occurs at most once per request.
 - Dev and codefix triggers remain distinguishable.
 - Reference packs are loaded only when relevant.
-- Missing and orphaned references fail tests.
+- Missing manifest references fail tests.
 - D365-only implementation constructs are rejected.
 
 ### XPO Tests
@@ -721,7 +765,9 @@ When external research is required, prefer primary Microsoft documentation and k
 - Independent cache identity and append-only revision comparison.
 - Added, modified, and removed object detection between explicitly selected revisions.
 
-### Acceptance Flows
+### Manual First-Release Acceptance Flows
+
+Before the first public release, a human AX 2012 R3 expert executes and records each flow below in `docs/technical-review.md`. Every record names the selected route, loaded references, required evidence, expected safe outcome, observed result, and unresolved unknowns. These are manual acceptance scenarios because the package distributes agent instructions rather than an AX runtime in which the generated guidance can be executed automatically.
 
 - Explain an existing SysOperation.
 - Develop a complete SysOperation.
@@ -752,15 +798,13 @@ Before any AX 2012 package scaffold is created, capture a read-only AX 2009 base
 - current root test count and result;
 - normalized `npm pack --dry-run --json` inventory;
 - names and SHA-256 hashes of published AX 2009 assets;
-- normalized outputs for `list` and `path`;
-- installation/export inventory for every current target;
-- current cache/config/session-auth paths and public environment-variable behavior.
+- normalized outputs for `--version`, `list`, and `path`.
 
-This baseline protects the published `assets/` tree and current CLI behavior. It deliberately does not require equality with the divergent, non-published root `skills/` tree. AX 2012 CI fails if the root published baseline changes without a separately approved AX 2009 change.
+This immutable baseline protects the published `assets/` tree, package inventory, and basic CLI identity. It deliberately does not require equality with the divergent, non-published root `skills/` tree. Target ownership is protected separately with AX 2009 and user-owned sentinels in every side-by-side adapter scenario. Cache isolation is protected by rejecting AX 2009 or incompatible identity metadata, including under an explicitly shared `--cache-dir`. AX 2012 CI fails if the captured root baseline changes without a separately approved AX 2009 change.
 
 ## 19. Architecture Gate and Minimal Improvement Path
 
-No AX 2012 package scaffold or implementation begins until the following design gates are accepted:
+The architecture was approved only after the following design gates were accepted:
 
 1. **XPO grammar:** approve the top-level registry, structural-boundary rules, tri-state completeness, raw-byte preservation, and evidence-provenance contract.
 2. **Cache identity:** approve exact config/cache/session-auth locations, AX 2012-specific environment/config names, metadata validation, and schema-migration policy.
@@ -769,9 +813,9 @@ No AX 2012 package scaffold or implementation begins until the following design 
 5. **Capability routing:** approve the intent-by-domain capability matrix, reference manifest, financial-dimensions promotion, and production-ready gates.
 6. **Revision semantics:** approve append-only source history, active revision, explicit base/head comparison, retention, and removed-object handling.
 7. **Independent CI:** approve separate install/test/pack jobs, published-artifact tests, and side-by-side target installation tests.
-8. **AX 2009 baseline:** capture and approve the published-file, asset-hash, CLI-output, target-installation, cache-path, and current-test baseline.
+8. **AX 2009 baseline:** capture and approve the published-file, asset-hash, CLI-output, and current-test baseline, plus the target and cache isolation contracts.
 
-Current design status: gates 1–7 are specified in this draft; the evidence for gate 8 is captured in Appendix A. All eight remain subject to the user's architectural approval before the sibling package is scaffolded.
+Current design status: all eight gates are accepted, and the synchronized implementation plan is reviewed. The commit that records this synchronized spec and plan becomes their audit baseline. Gate 8 evidence remains anchored at `d42d3ed`. Implementation still begins only after an explicit execution request.
 
 Only after all eight gates are satisfied may implementation proceed in this order:
 
@@ -792,14 +836,14 @@ Potential later additions:
 
 - profiler/stack analysis;
 - symptom-first support;
-- SSRS;
 - organization model and global address book;
-- DIXF;
-- workflow;
+- DIXF/DMF;
+- production-ready promotion of the initial deferred Workflow/SSRS reference;
+- broader Retail/Commerce, WHS, and TMS coverage;
 - XPO/model export generation;
 - deterministic Babysit orchestration.
 
-These should be added as reference packs or public skills based on behavior: new output workflow merits a skill; additional facts for an existing workflow merit a reference pack.
+These should be added as reference packs, capability promotions, or public skills based on behavior: a new output workflow merits a skill; additional facts for an existing workflow merit a reference pack; stronger support for an existing gated or deferred pack requires an explicit capability-status change and new evidence tests.
 
 ## 21. Shared-Kernel Exit Criteria
 
@@ -931,4 +975,4 @@ config key        xpoCacheDir
 precedence        --cache-dir → user config → environment → default
 ```
 
-This baseline is captured but remains subject to explicit user approval as architecture gate 8. The current non-published root `skills/` mirror is intentionally excluded.
+This baseline is accepted as architecture gate 8. The current non-published root `skills/` mirror is intentionally excluded.
