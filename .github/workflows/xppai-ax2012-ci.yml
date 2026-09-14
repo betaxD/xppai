@@ -1,0 +1,48 @@
+name: xppai AX 2012 R3
+
+on:
+  push:
+    paths:
+      - "packages/xppai-ax2012/**"
+      - ".github/workflows/xppai-ax2012-ci.yml"
+
+permissions:
+  contents: read
+  pull_request:
+    paths:
+      - "packages/xppai-ax2012/**"
+      - ".github/workflows/xppai-ax2012-ci.yml"
+
+jobs:
+  ax2009:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 18
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Verify root tarball excludes the sibling package
+        run: |
+          npm pack --dry-run --json > root-pack.json
+          node -e "const p=require('./root-pack.json')[0]; if(p.files.some(f=>f.path.startsWith('packages/xppai-ax2012/'))) process.exit(1)"
+
+  ax2012:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/xppai-ax2012
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: packages/xppai-ax2012/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run verify:artifact
+      - run: npm run verify:side-by-side
+      - run: npm run verify:ax2009
