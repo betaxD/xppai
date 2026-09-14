@@ -1,5 +1,48 @@
 {
   "schemaVersion": 1,
   "baseline": "2012-R3",
-  "references": []
+  "references": [
+    {
+      "id": "platform.model-store",
+      "path": "platform/model-store.md",
+      "baseline": "2012-R3",
+      "domains": ["model-store", "models", "layers", "deployment", "cil"],
+      "status": "supported"
+    },
+    {
+      "id": "platform.xpp-language",
+      "path": "platform/xpp-language.md",
+      "baseline": "2012-R3",
+      "domains": ["xpp", "eventing", "clr", "execution-context", "cil"],
+      "status": "supported"
+    },
+    {
+      "id": "platform.sysoperation",
+      "path": "platform/sysoperation.md",
+      "baseline": "2012-R3",
+      "domains": ["sysoperation", "batch", "services", "contracts"],
+      "status": "supported"
+    },
+    {
+      "id": "platform.aif",
+      "path": "platform/aif.md",
+      "baseline": "2012-R3",
+      "domains": ["aif", "integration", "services", "wcf"],
+      "status": "supported"
+    },
+    {
+      "id": "platform.security",
+      "path": "platform/security.md",
+      "baseline": "2012-R3",
+      "domains": ["security", "authorization", "xds", "cas"],
+      "status": "supported"
+    },
+    {
+      "id": "platform.data-frameworks",
+      "path": "platform/data-frameworks.md",
+      "baseline": "2012-R3",
+      "domains": ["data-model", "database", "number-sequences", "synchronization"],
+      "status": "supported"
+    }
+  ]
 }
