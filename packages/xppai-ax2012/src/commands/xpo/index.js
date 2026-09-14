@@ -23,7 +23,17 @@ function run(flags, positionals) {
     return;
   }
 
-  throw new Error(`xpo command "${positionals[0]}" is not implemented yet`);
+  const handlers = {
+    snapshot: require('./snapshot'),
+    list: require('./list'),
+    read: require('./read'),
+    grep: require('./grep'),
+    'export-modified': require('./export-modified'),
+  };
+  const command = positionals[0];
+  const handler = handlers[command];
+  if (!handler) throw new Error(`xpo command "${command}" is not implemented yet`);
+  return handler(flags, positionals.slice(1));
 }
 
 module.exports = run;
