@@ -1,0 +1,24 @@
+{
+  "name": "xppai-ax2012",
+  "version": "0.1.0",
+  "description": "Independent Microsoft Dynamics AX 2012 R3 skill suite and CLI",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "xppai-ax2012": "bin/xppai-ax2012.js"
+  },
+  "files": [
+    "assets/",
+    "bin/",
+    "docs/",
+    "src/"
+  ],
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "verify:ax2009": "node scripts/verify-ax2009-baseline.js",
+    "prepack": "npm test && npm run verify:ax2009"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
