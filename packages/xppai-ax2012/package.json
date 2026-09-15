@@ -19,6 +19,7 @@
     "verify:side-by-side": "node scripts/verify-side-by-side.js",
     "verify:ax2009": "node scripts/verify-ax2009-baseline.js",
     "verify:technical-review": "node scripts/verify-technical-review.js",
+    "prepublishOnly": "npm test && npm run verify:artifact && npm run verify:side-by-side && npm run verify:technical-review && npm run verify:ax2009",
     "prepack": "npm test && npm run verify:ax2009"
   },
   "engines": {
