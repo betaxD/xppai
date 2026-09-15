@@ -8,4 +8,4 @@ History is append-only by normalized source identity and original-byte hash. Ide
 
 Diff/export requires an explicit base and head revision and reports added, modified, and removed objects. No automatic pruning occurs; retention is an operator decision and is not part of the first release.
 
-The parser preserves original bytes, encoding/BOM, hashes, offsets, provenance, and `complete`, `incomplete`, or `indeterminate` status. A snapshot authorizes bounded reads against one index fingerprint and expires when history changes.
+The parser preserves original bytes, encoding/BOM, hashes, offsets, provenance, and `complete`, `incomplete`, or `indeterminate` status. Facts not established by preserved evidence remain `Unknown`; parser completeness is never silently promoted. A snapshot authorizes bounded reads against one index fingerprint and expires when history changes.
