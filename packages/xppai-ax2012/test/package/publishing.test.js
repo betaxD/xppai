@@ -12,7 +12,11 @@ test('publication scripts are sibling-local and preserve the root package', () =
   const pkg = require('../../package.json');
   assert.equal(rootPkg.name, 'xppai');
   assert.equal(pkg.name, 'xppai-ax2012');
-  assert.match(pkg.scripts.prepublishOnly, /verify:ax2009/);
+  assert.equal(
+    pkg.scripts.prepublishOnly,
+    'npm test && npm run verify:artifact && npm run verify:side-by-side && npm run verify:technical-review && npm run verify:ax2009',
+  );
+  assert.notEqual(pkg.private, true);
   assert.equal(Object.hasOwn(rootPkg.scripts, 'verify:ax2012'), false);
 });
 
