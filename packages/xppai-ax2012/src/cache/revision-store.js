@@ -104,6 +104,30 @@ function preserveByteArtifact(file, originalBytes, byteHash) {
   validateByteArtifact(file, byteHash, bytes);
 }
 
+function backfillRevisionBytes(cacheDir, revision, originalBytes, byteHash, relativeBytes) {
+  if (revision.byteHash !== byteHash) {
+    throw new Error(`revision ${revision.revisionId} byte hash mismatch`);
+  }
+  if (revision.bytePath !== undefined && revision.bytePath !== relativeBytes) {
+    throw new Error(`revision ${revision.revisionId} byte path mismatch`);
+  }
+
+  preserveByteArtifact(resolveCachePath(cacheDir, relativeBytes), originalBytes, byteHash);
+
+  const extractPath = resolveCachePath(cacheDir, revision.extractPath);
+  const extract = readValidatedJson(extractPath, 'revision extract');
+  if (extract.revisionId !== revision.revisionId || extract.byteHash !== byteHash) {
+    throw new Error(`revision ${revision.revisionId} extract identity mismatch`);
+  }
+  if (extract.bytePath !== undefined && extract.bytePath !== relativeBytes) {
+    throw new Error(`revision ${revision.revisionId} extract byte path mismatch`);
+  }
+  if (extract.bytePath === undefined) {
+    writeIdentityJson(extractPath, { ...extract, bytePath: relativeBytes });
+  }
+  revision.bytePath = relativeBytes;
+}
+
 function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
   if (!cacheDir) throw new Error('cacheDir is required');
   if (!Buffer.isBuffer(originalBytes) && !(originalBytes instanceof Uint8Array)) {
@@ -158,7 +182,7 @@ function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
     });
     source.revisions.push(revision);
   } else {
-    preserveByteArtifact(resolveCachePath(cacheDir, revision.bytePath), originalBytes, byteHash);
+    backfillRevisionBytes(cacheDir, revision, originalBytes, byteHash, relativeBytes);
   }
 
   source.activeRevisionId = revisionId;

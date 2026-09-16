@@ -84,6 +84,39 @@ test('appendRevision is idempotent for the same normalized source and original b
   assert.equal(first.byteHash, crypto.createHash('sha256').update(bytes('same export')).digest('hex'));
 });
 
+test('appendRevision backfills exact bytes for a compatible schema-v1 revision without bytePath', (t) => {
+  const root = useTempDir(t, 'xppai-legacy-revision-');
+  const cacheDir = path.join(root, 'cache');
+  const originalBytes = bytes('legacy export');
+  const input = {
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes,
+    parsed: { objects: [object('Class', 'Example', 'legacy class', 'legacy-hash')] },
+  };
+  const first = appendRevision(input);
+  const indexFile = path.join(cacheDir, 'index.json');
+  const index = JSON.parse(fs.readFileSync(indexFile, 'utf8'));
+  const revision = index.sources[0].revisions[0];
+  const byteFile = path.join(cacheDir, revision.bytePath);
+  const extractFile = path.join(cacheDir, revision.extractPath);
+  const extract = JSON.parse(fs.readFileSync(extractFile, 'utf8'));
+
+  delete revision.bytePath;
+  delete extract.bytePath;
+  fs.rmSync(byteFile);
+  fs.writeFileSync(indexFile, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(extractFile, `${JSON.stringify(extract, null, 2)}\n`, 'utf8');
+
+  const second = appendRevision(input);
+  const migratedRevision = readIndex(cacheDir).sources[0].revisions[0];
+  const migratedExtract = readRevision(cacheDir, first.revisionId);
+
+  assert.equal(second.revisionId, first.revisionId);
+  assert.equal(migratedRevision.bytePath, migratedExtract.bytePath);
+  assert.deepEqual(readRevisionBytes(cacheDir, first.revisionId), originalBytes);
+});
+
 test('compareRevisions reports added, modified, and removed objects and rejects source mismatch', (t) => {
   const root = useTempDir(t, 'xppai-compare-');
   const cacheDir = path.join(root, 'cache');
