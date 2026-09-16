@@ -5,13 +5,13 @@ on:
     paths:
       - "packages/xppai-ax2012/**"
       - ".github/workflows/xppai-ax2012-ci.yml"
-
-permissions:
-  contents: read
   pull_request:
     paths:
       - "packages/xppai-ax2012/**"
       - ".github/workflows/xppai-ax2012-ci.yml"
+
+permissions:
+  contents: read
 
 jobs:
   ax2009:

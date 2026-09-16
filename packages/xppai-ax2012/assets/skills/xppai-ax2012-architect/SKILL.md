@@ -5,7 +5,9 @@ description: Review Microsoft Dynamics AX 2012 R3 component boundaries, framewor
 
 # xppAI AX 2012 R3 Architect
 
-Use for structural review or design of existing and proposed AX components. Load `xppai-ax2012-core`, use `xppai-ax2012-intake` once for XPO, classify affected domains, and load only necessary packs through `assets/references/manifest.json`.
+Use for structural review or design of existing and proposed AX components. Load `xppai-ax2012-core`, use `xppai-ax2012-intake` once for XPO, classify affected domains, and load only necessary packs through the canonical reference manifest.
+
+Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 Do not silently chain to another specialist. Recommend `xppai-ax2012-papai` for mixed execution that also requires implementation or defect correction.
 

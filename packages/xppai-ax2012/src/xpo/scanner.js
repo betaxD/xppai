@@ -11,7 +11,7 @@ function scanCandidates(decoded) {
     const end = newline === -1 ? text.length : newline + 1;
     let lineText = text.slice(start, newline === -1 ? text.length : newline);
     if (lineText.endsWith('\r')) lineText = lineText.slice(0, -1);
-    const match = /^([A-Z][A-Z0-9]*)(?:[ \t]+#?([^\r\n]+?))?[ \t]*$/.exec(lineText);
+    const match = /^[ \t]*([A-Z][A-Z0-9]*)(?:[ \t]+#?([^\r\n]+?))?[ \t]*$/.exec(lineText);
     if (match) {
       const header = match[2] ? match[2].trim() : null;
       candidates.push({

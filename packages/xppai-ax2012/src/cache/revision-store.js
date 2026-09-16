@@ -49,6 +49,61 @@ function extractRelativePath(sourceId, byteHash) {
   return path.join('extracts', sourceId, `${byteHash}.json`);
 }
 
+function byteRelativePath(sourceId, byteHash) {
+  return path.join('bytes', sourceId, `${byteHash}.xpo`);
+}
+
+function resolveCachePath(cacheDir, relativePath) {
+  if (typeof relativePath !== 'string' || !relativePath) {
+    throw new Error('revision byte path is missing');
+  }
+  const root = path.resolve(cacheDir);
+  const resolved = path.resolve(root, relativePath);
+  const relation = path.relative(root, resolved);
+  if (relation.startsWith('..') || path.isAbsolute(relation)) {
+    throw new Error(`revision byte path escapes cache: ${relativePath}`);
+  }
+  return resolved;
+}
+
+function validateByteArtifact(file, byteHash, expectedBytes = null) {
+  let stored;
+  try {
+    stored = fs.readFileSync(file);
+  } catch (error) {
+    throw new Error(`cannot read revision bytes at ${file}: ${error.message}`);
+  }
+  if (sha256(stored) !== byteHash) {
+    throw new Error(`revision byte hash mismatch at ${file}`);
+  }
+  if (expectedBytes && !stored.equals(Buffer.from(expectedBytes))) {
+    throw new Error(`revision byte hash collision at ${file}`);
+  }
+  return stored;
+}
+
+function preserveByteArtifact(file, originalBytes, byteHash) {
+  const bytes = Buffer.from(originalBytes);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  let descriptor;
+  let created = false;
+  try {
+    descriptor = fs.openSync(file, 'wx', 0o600);
+    created = true;
+    fs.writeFileSync(descriptor, bytes);
+    fs.fsyncSync(descriptor);
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+  } catch (error) {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    if (error.code !== 'EEXIST') {
+      if (created) fs.rmSync(file, { force: true });
+      throw error;
+    }
+  }
+  validateByteArtifact(file, byteHash, bytes);
+}
+
 function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
   if (!cacheDir) throw new Error('cacheDir is required');
   if (!Buffer.isBuffer(originalBytes) && !(originalBytes instanceof Uint8Array)) {
@@ -64,6 +119,7 @@ function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
   const byteHash = sha256(originalBytes);
   const revisionId = `${sourceId}-${byteHash}`;
   const relativeExtract = extractRelativePath(sourceId, byteHash);
+  const relativeBytes = byteRelativePath(sourceId, byteHash);
   const extractPath = path.join(path.resolve(cacheDir), relativeExtract);
   const index = readIndex(cacheDir);
   let source = index.sources.find((entry) => entry.sourceId === sourceId);
@@ -82,17 +138,27 @@ function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
   let revision = source.revisions.find((entry) => entry.revisionId === revisionId);
   if (!revision) {
     const createdAt = new Date().toISOString();
-    revision = { revisionId, byteHash, extractPath: relativeExtract, createdAt };
+    revision = {
+      revisionId,
+      byteHash,
+      bytePath: relativeBytes,
+      extractPath: relativeExtract,
+      createdAt,
+    };
+    preserveByteArtifact(resolveCachePath(cacheDir, relativeBytes), originalBytes, byteHash);
     writeIdentityJson(extractPath, {
       sourceId,
       sourcePath: resolvedSourcePath,
       normalizedSourcePath,
       revisionId,
       byteHash,
+      bytePath: relativeBytes,
       createdAt,
       parsed,
     });
     source.revisions.push(revision);
+  } else {
+    preserveByteArtifact(resolveCachePath(cacheDir, revision.bytePath), originalBytes, byteHash);
   }
 
   source.activeRevisionId = revisionId;
@@ -122,7 +188,17 @@ function readRevision(cacheDir, revisionId) {
     'revision extract',
   );
   if (extract.revisionId !== revisionId) throw new Error('revision extract identity mismatch');
+  if (extract.bytePath !== revision.bytePath) throw new Error('revision extract byte path mismatch');
   return extract;
+}
+
+function readRevisionBytes(cacheDir, revisionId) {
+  const index = readIndex(cacheDir);
+  const { revision } = findRevision(index, revisionId);
+  return validateByteArtifact(
+    resolveCachePath(cacheDir, revision.bytePath),
+    revision.byteHash,
+  );
 }
 
 function setActiveRevision(cacheDir, sourceId, revisionId) {
@@ -197,6 +273,7 @@ module.exports = {
   objectKey,
   readIndex,
   readRevision,
+  readRevisionBytes,
   selectRevision,
   setActiveRevision,
   sourceIdForPath,

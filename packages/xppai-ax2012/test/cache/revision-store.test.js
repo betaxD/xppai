@@ -11,6 +11,7 @@ const {
   compareRevisions,
   readIndex,
   readRevision,
+  readRevisionBytes,
   setActiveRevision,
 } = require('../../src/cache/revision-store');
 const { useTempDir } = require('../helpers/tmp');
@@ -130,4 +131,29 @@ test('compareRevisions reports added, modified, and removed objects and rejects 
     ),
     /same source identity/i,
   );
+});
+
+test('revision bytes are append-only, idempotent, and validated on read', (t) => {
+  const root = useTempDir(t, 'xppai-revision-bytes-');
+  const cacheDir = path.join(root, 'cache');
+  const originalBytes = Buffer.from([0xff, 0xfe, 0x43, 0x00, 0x4c, 0x00]);
+  const input = {
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes,
+    parsed: { objects: [] },
+  };
+
+  const first = appendRevision(input);
+  const second = appendRevision(input);
+  const stored = readIndex(cacheDir).sources[0].revisions[0];
+  assert.equal(first.revisionId, second.revisionId);
+  assert.equal(typeof stored.bytePath, 'string');
+  assert.deepEqual(readRevisionBytes(cacheDir, first.revisionId), originalBytes);
+
+  const absoluteBytePath = path.join(cacheDir, stored.bytePath);
+  fs.writeFileSync(absoluteBytePath, Buffer.from('corrupt'));
+  assert.throws(() => readRevisionBytes(cacheDir, first.revisionId), /byte hash mismatch/i);
+  assert.throws(() => appendRevision(input), /collision|corrupt|hash mismatch/i);
+  assert.equal(fs.readFileSync(absoluteBytePath, 'utf8'), 'corrupt');
 });

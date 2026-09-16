@@ -19,7 +19,7 @@ Use this skill to select the right `xppai-ax2012` entry point without performing
 - `xppai-ax2012-dev`: create or expand behavior and artifacts.
 - `xppai-ax2012-help`: show this catalog.
 
-The twelve reference packs are internal domain knowledge selected through `assets/references/manifest.json`; users invoke skills, not references. Production-ready guidance remains limited by each reference's supported, gated, or deferred status and available evidence.
+The twelve reference packs are internal domain knowledge selected through the canonical manifest: `../../references/manifest.json` from this source-tree skill directory, or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory. Users invoke skills, not references. Production-ready guidance remains limited by each reference's supported, gated, or deferred status and available evidence.
 
 Use the CLI for asset listing/path, transactional install/export, or byte-preserving XPO cache operations. See the package README and `docs/` for exact commands, target layouts, cache identity, and release gates.
 

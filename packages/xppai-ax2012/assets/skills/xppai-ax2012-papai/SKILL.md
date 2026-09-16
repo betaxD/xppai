@@ -5,7 +5,9 @@ description: Orchestrate ambiguous and multi-domain Microsoft Dynamics AX 2012 R
 
 # xppAI AX 2012 R3 Papai
 
-Use Papai as the primary orchestrator for ambiguous, mixed, or complex AX 2012 R3 requests. Load `xppai-ax2012-core`, validate the baseline, classify intent and domain, run `xppai-ax2012-intake` at most once per request when XPO evidence is present, load the minimum relevant references from `assets/references/manifest.json`, invoke the minimum useful specialist sequence, validate, and synthesize.
+Use Papai as the primary orchestrator for ambiguous, mixed, or complex AX 2012 R3 requests. Load `xppai-ax2012-core`, validate the baseline, classify intent and domain, run `xppai-ax2012-intake` at most once per request when XPO evidence is present, load the minimum relevant references from the canonical reference manifest, invoke the minimum useful specialist sequence, validate, and synthesize.
+
+Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 ```yaml
 acceptedActions: explain, architect, risk, codefix, dev

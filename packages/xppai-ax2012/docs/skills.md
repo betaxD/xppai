@@ -24,4 +24,4 @@ Gated business: `business.ledger-posting`, `business.retail`, `business.regional
 
 Deferred business: `business.workflow-ssrs` (preliminary explanation, architecture inventory, and gap reporting only).
 
-References are routed by `assets/references/manifest.json` and are not all loaded by default. A missing file, failed gate, or unsupported capability produces an explicit gap instead of fallback guidance.
+References are routed by the canonical manifest and are not all loaded by default. From a source-tree skill directory it is `../../references/manifest.json`; from an installed or exported skill directory it is `../xppai-ax2012-references/manifest.json`. A missing file, failed gate, or unsupported capability produces an explicit gap instead of fallback guidance.

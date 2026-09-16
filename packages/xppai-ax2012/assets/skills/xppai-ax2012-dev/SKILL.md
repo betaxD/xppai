@@ -5,7 +5,9 @@ description: Design and implement new Microsoft Dynamics AX 2012 R3 behavior thr
 
 # xppAI AX 2012 R3 Dev
 
-Use when behavior does not yet exist or intentionally expands an existing contract. Load `xppai-ax2012-core`, run `xppai-ax2012-intake` once for XPO, classify domains, and load only relevant packs through `assets/references/manifest.json`.
+Use when behavior does not yet exist or intentionally expands an existing contract. Load `xppai-ax2012-core`, run `xppai-ax2012-intake` once for XPO, classify domains, and load only relevant packs through the canonical reference manifest.
+
+Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 Dev creates or expands a contract; defective existing behavior belongs to codefix. Do not silently chain to another specialist. Recommend `xppai-ax2012-papai` when architecture and risk work must be synthesized with implementation.
 

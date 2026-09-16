@@ -7,6 +7,8 @@ description: Select and normalize evidence once for Microsoft Dynamics AX 2012 R
 
 Load `xppai-ax2012-core` first. Intake accepts a local XPO file, pasted XPO, an explicit parser cache revision, a stack trace, requirements, a diff, or a plain-language description. Direct local-file intake is the preferred XPO evidence path; pasted XPO is analyzed directly; cache use is optional.
 
+When downstream routing needs reference packs, resolve the canonical manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
+
 ## One-time intake contract
 
 Perform at most one XPO parse per request. If Papai or a specialist already supplied normalized parser output, reuse it and do not parse the same evidence again. Intake and reference loading do not consume an investigation cycle.

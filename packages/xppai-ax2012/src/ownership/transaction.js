@@ -81,6 +81,20 @@ function assertWithinRoot(root, relativePath) {
 
 function assetEntries(assetRoot, destinations, mode) {
   const entries = [];
+  function addEntry(destination, destinationRoot, ownedPath, sourcePath) {
+    const entry = {
+      destination,
+      destinationRoot,
+      destinationPath: assertWithinRoot(destinationRoot, ownedPath),
+      path: ownedPath,
+      sourcePath,
+      kind: mode,
+    };
+    if (mode === 'copy') entry.contentHash = hashEntry(sourcePath);
+    else entry.symlinkTarget = path.resolve(sourcePath);
+    entries.push(entry);
+  }
+
   for (const [destination, destinationRoot] of Object.entries(destinations)) {
     const sourceRoot = path.join(assetRoot, destination);
     if (!fs.existsSync(sourceRoot)) continue;
@@ -90,19 +104,18 @@ function assetEntries(assetRoot, destinations, mode) {
       if (!child.isDirectory() && !child.isFile()) {
         throw new Error(`unsupported asset entry type: ${sourcePath}`);
       }
-      const entry = {
-        destination,
-        destinationRoot,
-        destinationPath: assertWithinRoot(destinationRoot, ownedPath),
-        path: ownedPath,
-        sourcePath,
-        kind: mode,
-      };
-      if (mode === 'copy') entry.contentHash = hashEntry(sourcePath);
-      else entry.symlinkTarget = path.resolve(sourcePath);
-      entries.push(entry);
+      addEntry(destination, destinationRoot, ownedPath, sourcePath);
     }
   }
+
+  const referencesRoot = path.join(assetRoot, 'references');
+  const referenceManifest = path.join(referencesRoot, 'manifest.json');
+  if (!fs.existsSync(referenceManifest) || !fs.statSync(referencesRoot).isDirectory()) {
+    throw new Error(`canonical reference bundle is missing: ${referenceManifest}`);
+  }
+  const ownedPath = validateOwnedPath('xppai-ax2012-references');
+  addEntry('skills', destinations.skills, ownedPath, referencesRoot);
+
   return entries.sort((left, right) => compareOrdinal(
     `${left.destination}/${left.path}`,
     `${right.destination}/${right.path}`,

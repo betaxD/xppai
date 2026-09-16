@@ -11,7 +11,7 @@ Use this skill as the mandatory foundation for every `xppai-ax2012` request. Use
 
 - Treat `xppai-ax2012` as an independent product, asset tree, cache, and release lifecycle.
 - Do not import implementation guidance from another xppAI package or from an unversioned skill.
-- Reference packs are not loaded by default. Resolve only relevant packs through `assets/references/manifest.json`; do not create private or mirrored reference trees.
+- Reference packs are not loaded by default. Resolve only relevant packs through the canonical manifest: `../../references/manifest.json` from this source-tree skill directory, or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory. Do not create private or mirrored reference trees.
 - Production-ready guidance is permitted only for supported domains or gated domains whose evidence requirements pass. Deferred domains receive preliminary analysis and an explicit gap report only.
 
 ## Evidence hierarchy

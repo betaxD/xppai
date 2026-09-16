@@ -86,3 +86,39 @@ test('baseline evidence stays split and strong foreign signals become conflicts'
     true,
   );
 });
+
+test('unrecognized text is preserved as one indeterminate whole-input fragment', () => {
+  const bytes = Buffer.from('arbitrary text\r\nwith no XPO token', 'utf8');
+  const parsed = parseXpo(bytes);
+
+  assert.equal(parsed.objects.length, 0);
+  assert.equal(parsed.fragments.length, 1);
+  assert.equal(parsed.fragments[0].content, bytes.toString('utf8'));
+  assert.deepEqual(parsed.fragments[0].offsets.byte, { start: 0, end: bytes.length });
+  assert.equal(parsed.fragments[0].completeness, 'indeterminate');
+  assert.match(parsed.fragments[0].reason, /no recognized top-level token/i);
+  assert.equal(parsed.completeness, 'indeterminate');
+});
+
+test('indented top-level tokens preserve their leading bytes and parse the object', () => {
+  const bytes = Buffer.from('  CLASS #Indented\r\n  ENDCLASS\r\n', 'utf8');
+  const parsed = parseXpo(bytes);
+
+  assert.equal(parsed.fragments.length, 0);
+  assert.equal(parsed.objects.length, 1);
+  assert.equal(parsed.objects[0].name, 'Indented');
+  assert.equal(parsed.objects[0].content, bytes.toString('utf8'));
+  assert.deepEqual(parsed.objects[0].offsets.byte, { start: 0, end: bytes.length });
+  assert.equal(parsed.completeness, 'complete');
+});
+
+test('empty input remains explicit indeterminate evidence', () => {
+  const parsed = parseXpo(Buffer.alloc(0));
+
+  assert.equal(parsed.objects.length, 0);
+  assert.equal(parsed.fragments.length, 1);
+  assert.equal(parsed.fragments[0].content, '');
+  assert.deepEqual(parsed.fragments[0].offsets.byte, { start: 0, end: 0 });
+  assert.equal(parsed.fragments[0].contentHash, crypto.createHash('sha256').update(Buffer.alloc(0)).digest('hex'));
+  assert.equal(parsed.completeness, 'indeterminate');
+});

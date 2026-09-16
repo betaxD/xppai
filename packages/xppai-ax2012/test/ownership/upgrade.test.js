@@ -15,6 +15,7 @@ function write(file, value) {
 
 function release(root, name, entries) {
   const assetRoot = path.join(root, name, 'assets');
+  write(path.join(assetRoot, 'references', 'manifest.json'), `references ${name}`);
   for (const [relative, content] of Object.entries(entries)) {
     write(path.join(assetRoot, relative), content);
   }

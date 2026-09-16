@@ -5,7 +5,9 @@ description: Explain existing Microsoft Dynamics AX 2012 R3 artifacts and framew
 
 # xppAI AX 2012 R3 Explain
 
-Use for understanding existing methods, classes, services, forms, tables, queries, configuration, or execution paths. Load `xppai-ax2012-core`; run `xppai-ax2012-intake` once when XPO evidence is present; classify the domain; and load only the minimum references selected through `assets/references/manifest.json`.
+Use for understanding existing methods, classes, services, forms, tables, queries, configuration, or execution paths. Load `xppai-ax2012-core`; run `xppai-ax2012-intake` once when XPO evidence is present; classify the domain; and load only the minimum references selected through the canonical reference manifest.
+
+Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 Do not silently chain to another specialist. Recommend `xppai-ax2012-papai` when the request crosses explanation into architecture, risk assessment, defect correction, or new implementation.
 

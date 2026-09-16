@@ -7,6 +7,20 @@ const { test } = require('node:test');
 
 const PACKAGE_ROOT = path.resolve(__dirname, '../..');
 
+function mappingKeysByIndent(text, parentName) {
+  const lines = text.split(/\r?\n/);
+  const parent = lines.findIndex((line) => line === `${parentName}:`);
+  assert.notEqual(parent, -1, `missing top-level ${parentName} mapping`);
+  const keys = [];
+  for (let index = parent + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^\S/.test(line)) break;
+    const match = /^  ([a-z_][a-z0-9_-]*):(?:\s|$)/i.exec(line);
+    if (match) keys.push(match[1]);
+  }
+  return keys;
+}
+
 test('publication scripts are sibling-local and preserve the root package', () => {
   const rootPkg = require('../../../../package.json');
   const pkg = require('../../package.json');
@@ -36,4 +50,13 @@ test('publication checklist documents the independent release gate', () => {
   ]) {
     assert.match(checklist, requirement);
   }
+});
+
+test('AX 2012 workflow exposes push and pull_request triggers outside permissions', () => {
+  const workflow = fs.readFileSync(
+    path.resolve(PACKAGE_ROOT, '../../.github/workflows/xppai-ax2012-ci.yml'),
+    'utf8',
+  );
+  assert.deepEqual(mappingKeysByIndent(workflow, 'on').sort(), ['pull_request', 'push']);
+  assert.deepEqual(mappingKeysByIndent(workflow, 'permissions'), ['contents']);
 });

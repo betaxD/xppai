@@ -32,6 +32,7 @@ function makeRelease(root, name, content) {
   const assetRoot = path.join(root, name, 'assets');
   write(path.join(assetRoot, 'skills', 'xppai-ax2012-core', 'SKILL.md'), content);
   write(path.join(assetRoot, 'commands', 'xppai-ax2012-papai.md'), `command ${content}`);
+  write(path.join(assetRoot, 'references', 'manifest.json'), `references ${content}`);
   return assetRoot;
 }
 

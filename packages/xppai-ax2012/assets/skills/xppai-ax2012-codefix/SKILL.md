@@ -5,7 +5,9 @@ description: Diagnose and correct defective existing Microsoft Dynamics AX 2012 
 
 # xppAI AX 2012 R3 Codefix
 
-Use when existing behavior is defective, regressed, slow, or incorrect. Load `xppai-ax2012-core`, perform `xppai-ax2012-intake` once for XPO, classify domains, and load only required references from `assets/references/manifest.json`.
+Use when existing behavior is defective, regressed, slow, or incorrect. Load `xppai-ax2012-core`, perform `xppai-ax2012-intake` once for XPO, classify domains, and load only required references from the canonical reference manifest.
+
+Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 Codefix restores an existing contract; it does not create or expand one. Do not silently chain to another specialist. Recommend `xppai-ax2012-papai` when the request is actually multi-domain design or new development.
 

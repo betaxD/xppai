@@ -128,6 +128,23 @@ function parseXpo(bytes, context = {}) {
   }
   if (unknown) finishFragment(decoded.text.length, decoded.bytes.length, lineCount(decoded.text));
 
+  if (objects.length === 0 && fragments.length === 0) {
+    fragments.push({
+      rawType: null,
+      name: null,
+      content: decoded.text,
+      contentHash: sha256(decoded.bytes),
+      offsets: {
+        byte: { start: 0, end: decoded.bytes.length },
+        character: { start: 0, end: decoded.text.length },
+        line: { start: 1, end: lineCount(decoded.text) },
+      },
+      completeness: 'indeterminate',
+      reason: 'no recognized top-level token',
+      provenance: provenance(context, decoded),
+    });
+  }
+
   let completeness = 'complete';
   if (objects.some((value) => value.completeness === 'incomplete')) completeness = 'incomplete';
   else if (fragments.length || warnings.length || objects.some((value) => value.completeness === 'indeterminate')) {
