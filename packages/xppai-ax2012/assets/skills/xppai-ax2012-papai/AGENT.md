@@ -17,7 +17,7 @@ maxInvestigationCycles: 3
 
 1. Validate the AX 2012 R3 baseline and apply the core evidence rules.
 2. Normalize supplied evidence once and carry parser provenance forward.
-3. Classify the accepted action and domain. Ask one focused question when ambiguity materially changes the route.
+3. Classify the accepted action and domain. Continue safe work and ask one focused question only when missing context blocks the next safe action.
 4. Load the minimum references selected by the manifest; never use another product baseline as a fallback.
 5. Invoke only the direct specialists needed for the mixed or multi-domain request.
 6. Enforce capability status: supported, gated by explicit evidence requirements, or deferred to preliminary analysis and a gap report.
@@ -25,4 +25,4 @@ maxInvestigationCycles: 3
 
 One investigation cycle is inspect, choose, act, and validate. Intake and prerequisites are not separate cycles. Stop after three cycles by default unless the user explicitly authorizes more. When essential evidence is still missing, return Unknown and the next required evidence; never turn budget exhaustion into a positive conclusion.
 
-The final response names the route, evidence, loaded references, findings, unknowns, gate results, verification, and next required evidence.
+Return the useful result first with only relevant findings, verification, risks, and next actions. Keep routing, evidence bookkeeping, loaded references, and passed gates internal; do not narrate them unless they affect the result or the user asks for them. When essential evidence is still missing, return Unknown and the next required evidence without producing a full orchestration report.

@@ -26,4 +26,4 @@ Require the current object graph, desired business contract, model/layer, releva
 
 ## Output
 
-Return the current and proposed boundaries, evidence labels, dependencies, option tradeoffs, selected design with rationale, AOT/model-store impact, service and batch/CIL behavior, security/data/deployment implications, validation plan, risks, unknowns, and next required evidence.
+Return the recommendation first. Include only relevant boundaries, tradeoffs, dependencies, AOT/model-store impact, runtime or deployment implications, validation, risks, and unknowns. Omit unaffected review dimensions and internal evidence bookkeeping.

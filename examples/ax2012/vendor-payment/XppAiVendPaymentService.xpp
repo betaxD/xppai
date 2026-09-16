@@ -1,0 +1,269 @@
+public class XppAiVendPaymentService
+{
+}
+
+private void validateContract(XppAiVendPaymentContract _contract)
+{
+    BankAccountTable   bankAccountTable;
+    CompanyInfo        companyInfo;
+    LedgerJournalName  ledgerJournalName;
+    VendPaymModeTable  vendPaymModeTable;
+    VendTable          vendTable;
+
+    if (!_contract)
+    {
+        throw error('The vendor payment contract is required.');
+    }
+
+    if (!_contract.parmDataAreaId())
+    {
+        throw error('DataAreaId is required.');
+    }
+
+    companyInfo = CompanyInfo::findDataArea(_contract.parmDataAreaId());
+    if (!companyInfo.RecId)
+    {
+        throw error(strFmt('Company %1 does not exist.', _contract.parmDataAreaId()));
+    }
+
+    if (!_contract.parmJournalNameId()
+        || !_contract.parmVendAccount()
+        || !_contract.parmInvoiceId()
+        || !_contract.parmPaymentDate()
+        || !_contract.parmBankAccountId())
+    {
+        throw error('Journal, vendor, invoice, payment date and bank account are required.');
+    }
+
+    changeCompany (_contract.parmDataAreaId())
+    {
+        ledgerJournalName = LedgerJournalName::find(_contract.parmJournalNameId());
+        vendTable         = VendTable::find(_contract.parmVendAccount());
+        bankAccountTable  = BankAccountTable::find(_contract.parmBankAccountId());
+
+        if (!ledgerJournalName.RecId)
+        {
+            throw error(strFmt('Journal name %1 does not exist.', _contract.parmJournalNameId()));
+        }
+
+        if (!vendTable.RecId)
+        {
+            throw error(strFmt('Vendor %1 does not exist.', _contract.parmVendAccount()));
+        }
+
+        if (!bankAccountTable.RecId)
+        {
+            throw error(strFmt('Bank account %1 does not exist.', _contract.parmBankAccountId()));
+        }
+
+        if (_contract.parmPaymMode())
+        {
+            vendPaymModeTable = VendPaymModeTable::find(_contract.parmPaymMode());
+            if (!vendPaymModeTable.RecId)
+            {
+                throw error(strFmt('Vendor payment method %1 does not exist.', _contract.parmPaymMode()));
+            }
+        }
+    }
+}
+
+private VendTransOpen findOpenInvoice(XppAiVendPaymentContract _contract)
+{
+    VendTrans       vendTrans;
+    VendTransOpen   vendTransOpen;
+
+    select firstOnly vendTransOpen
+        exists join vendTrans
+            where vendTrans.RecId          == vendTransOpen.RefRecId
+               && vendTrans.AccountNum     == _contract.parmVendAccount()
+               && vendTrans.Invoice        == _contract.parmInvoiceId();
+
+    return vendTransOpen;
+}
+
+private LedgerJournalTrans findPendingPayment(XppAiVendPaymentContract _contract)
+{
+    DimensionDynamicAccount bankDimension;
+    DimensionDynamicAccount vendorDimension;
+    LedgerJournalTable      ledgerJournalTable;
+    LedgerJournalTrans      ledgerJournalTrans;
+
+    vendorDimension = DimensionStorage::getDynamicAccount(
+        _contract.parmVendAccount(),
+        LedgerJournalACType::Vend);
+    bankDimension = DimensionStorage::getDynamicAccount(
+        _contract.parmBankAccountId(),
+        LedgerJournalACType::Bank);
+
+    select firstOnly ledgerJournalTrans
+        exists join ledgerJournalTable
+            where ledgerJournalTable.JournalNum  == ledgerJournalTrans.JournalNum
+               && ledgerJournalTable.JournalName == _contract.parmJournalNameId()
+               && ledgerJournalTable.Posted      == NoYes::No
+               && ledgerJournalTrans.AccountType == LedgerJournalACType::Vend
+               && ledgerJournalTrans.LedgerDimension == vendorDimension
+               && ledgerJournalTrans.OffsetAccountType == LedgerJournalACType::Bank
+               && ledgerJournalTrans.OffsetLedgerDimension == bankDimension
+               && ledgerJournalTrans.Invoice     == _contract.parmInvoiceId();
+
+    return ledgerJournalTrans;
+}
+
+private LedgerJournalTrans createPaymentLine(
+    XppAiVendPaymentContract _contract,
+    VendTransOpen            _vendTransOpen)
+{
+    BankAccountTable       bankAccountTable;
+    LedgerJournalEngine    ledgerJournalEngine;
+    LedgerJournalName      ledgerJournalName;
+    LedgerJournalTable     ledgerJournalTable;
+    LedgerJournalTrans     ledgerJournalTrans;
+    JournalTableData       journalTableData;
+    NumberSeq              numberSeq;
+    VendTrans              vendTrans;
+    Voucher                voucher;
+    AmountCur              paymentAmount;
+
+    vendTrans        = VendTrans::find(_vendTransOpen.RefRecId);
+    bankAccountTable = BankAccountTable::find(_contract.parmBankAccountId());
+    ledgerJournalName = LedgerJournalName::find(_contract.parmJournalNameId());
+    paymentAmount    = abs(_vendTransOpen.AmountCur);
+
+    ledgerJournalTable.clear();
+    ledgerJournalTable.initValue();
+    ledgerJournalTable.JournalName = ledgerJournalName.JournalName;
+    ledgerJournalTable.initFromLedgerJournalName();
+    ledgerJournalTable.Name = _contract.parmDescription();
+
+    journalTableData = JournalTableData::newTable(ledgerJournalTable);
+    ledgerJournalTable.JournalNum = journalTableData.nextJournalId();
+    ledgerJournalTable.insert();
+
+    numberSeq = NumberSeq::newGetVoucherFromId(ledgerJournalName.NumberSequenceTable);
+    voucher   = numberSeq.voucher();
+
+    ledgerJournalEngine = LedgerJournalEngine::construct(ledgerJournalTable.JournalType);
+    ledgerJournalEngine.newJournalActive(ledgerJournalTable);
+
+    ledgerJournalTrans.clear();
+    ledgerJournalTrans.initValue();
+    ledgerJournalTrans.JournalNum  = ledgerJournalTable.JournalNum;
+    ledgerJournalTrans.Voucher     = voucher;
+    ledgerJournalTrans.TransDate   = _contract.parmPaymentDate();
+    ledgerJournalTrans.Txt         = _contract.parmDescription();
+    ledgerJournalTrans.AccountType = LedgerJournalACType::Vend;
+    ledgerJournalTrans.LedgerDimension = DimensionStorage::getDynamicAccount(
+        _contract.parmVendAccount(),
+        LedgerJournalACType::Vend);
+    ledgerJournalTrans.OffsetAccountType = LedgerJournalACType::Bank;
+    ledgerJournalTrans.OffsetLedgerDimension = DimensionStorage::getDynamicAccount(
+        bankAccountTable.AccountID,
+        LedgerJournalACType::Bank);
+    ledgerJournalTrans.CurrencyCode   = vendTrans.CurrencyCode;
+    ledgerJournalTrans.AmountCurDebit = paymentAmount;
+    ledgerJournalTrans.Invoice        = _contract.parmInvoiceId();
+    ledgerJournalTrans.PaymMode       = _contract.parmPaymMode();
+    ledgerJournalTrans.PaymReference  = _contract.parmPaymReference();
+    ledgerJournalTrans.SettleVoucher  = SettlementType::SelectedTransact;
+
+    ledgerJournalEngine.accountModified(ledgerJournalTrans);
+    ledgerJournalEngine.offsetAccountModified(ledgerJournalTrans);
+    ledgerJournalEngine.currencyModified(ledgerJournalTrans);
+    ledgerJournalEngine.preWriteLedgerJournalTrans(ledgerJournalTrans);
+    ledgerJournalTrans.insert();
+    ledgerJournalEngine.write(ledgerJournalTrans);
+
+    return ledgerJournalTrans;
+}
+
+private void markInvoiceForSettlement(
+    LedgerJournalTrans _ledgerJournalTrans,
+    VendTransOpen      _vendTransOpen)
+{
+    SpecTransManager specTransManager;
+    VendTrans        vendTrans;
+
+    vendTrans = VendTrans::find(_vendTransOpen.RefRecId);
+    specTransManager = SpecTransManager::construct(_ledgerJournalTrans);
+    specTransManager.insert(
+        _vendTransOpen.DataAreaId,
+        tableNum(VendTransOpen),
+        _vendTransOpen.RecId,
+        _vendTransOpen.AmountCur,
+        vendTrans.CurrencyCode);
+}
+
+private void postJournal(JournalId _journalNum)
+{
+    LedgerJournalCheckPost ledgerJournalCheckPost;
+    LedgerJournalTable     ledgerJournalTable;
+
+    ledgerJournalTable = LedgerJournalTable::find(_journalNum);
+    if (!ledgerJournalTable.RecId)
+    {
+        throw error(strFmt('Journal %1 was not found.', _journalNum));
+    }
+
+    ledgerJournalCheckPost = LedgerJournalCheckPost::newLedgerJournalTable(
+        ledgerJournalTable,
+        NoYes::Yes);
+    ledgerJournalCheckPost.run();
+
+    ledgerJournalTable = LedgerJournalTable::find(_journalNum);
+    if (!ledgerJournalTable.Posted)
+    {
+        throw error(strFmt('Journal %1 was not posted. Review the infolog.', _journalNum));
+    }
+}
+
+[SysEntryPointAttribute(true)]
+public XppAiVendPaymentResultContract process(XppAiVendPaymentContract _contract)
+{
+    LedgerJournalTrans                 paymentLine;
+    VendTable                          vendTable;
+    VendTransOpen                      vendTransOpen;
+    XppAiVendPaymentResultContract     result;
+
+    this.validateContract(_contract);
+    result = new XppAiVendPaymentResultContract();
+
+    changeCompany (_contract.parmDataAreaId())
+    {
+        ttsBegin;
+
+        // Serialize create/retry for this vendor in the current company.
+        vendTable   = VendTable::find(_contract.parmVendAccount(), true);
+        paymentLine = this.findPendingPayment(_contract);
+
+        if (!paymentLine.RecId)
+        {
+            vendTransOpen = this.findOpenInvoice(_contract);
+            if (!vendTransOpen.RecId)
+            {
+                throw error(strFmt(
+                    'No open transaction was found for invoice %1 and vendor %2.',
+                    _contract.parmInvoiceId(),
+                    _contract.parmVendAccount()));
+            }
+
+            paymentLine = this.createPaymentLine(_contract, vendTransOpen);
+            this.markInvoiceForSettlement(paymentLine, vendTransOpen);
+        }
+
+        ttsCommit;
+
+        if (_contract.parmPostPayment() == NoYes::Yes)
+        {
+            this.postJournal(paymentLine.JournalNum);
+        }
+
+        result.parmDataAreaId(curext());
+        result.parmJournalNum(paymentLine.JournalNum);
+        result.parmVoucher(paymentLine.Voucher);
+        result.parmPaymentAmount(paymentLine.AmountCurDebit);
+        result.parmCurrencyCode(paymentLine.CurrencyCode);
+        result.parmPosted(_contract.parmPostPayment());
+    }
+
+    return result;
+}

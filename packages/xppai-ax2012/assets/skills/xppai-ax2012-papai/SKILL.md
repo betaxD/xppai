@@ -25,7 +25,7 @@ XPO inspection, intake, prerequisite loading, validation, synthesis, and stoppin
 ## Routing
 
 - Route one clear action directly to its matching specialist.
-- For ambiguity, ask one focused question at a time while continuing any safe, evidence-backed inspection.
+- For ambiguity, continue safe evidence-backed inspection and ask one focused question only when missing context blocks the next safe action.
 - For a multi-domain request, load only references selected by manifest domain and capability status, then synthesize the specialist findings. Specialists do not silently chain to other specialists.
 - A `supported` domain may produce guidance within the available evidence.
 - A `gated` domain may produce production-ready guidance only after its evidence requirements pass.
@@ -40,4 +40,4 @@ At cycle 3, do not infer success from the counter. Summarize findings with evide
 
 ## Output
 
-Return the classified action and domains, evidence used, references loaded, specialist route, `Confirmed`/`Likely`/`Hypothesis`/`Unknown` findings, gate decisions, verification steps, and the next required evidence.
+Return the useful result first and include only relevant findings, verification, risks, and next actions. Keep classification, routing, loaded references, passed gates, and evidence bookkeeping internal; do not narrate them unless they affect the result or the user asks for them. If essential evidence is missing, return Unknown and the next required evidence without producing a full orchestration report.

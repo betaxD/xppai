@@ -1,0 +1,14 @@
+public class XppAiVendPaymentAifService
+{
+}
+
+[SysEntryPointAttribute(true)]
+public XppAiVendPaymentResultContract payInvoice(
+    XppAiVendPaymentContract _contract)
+{
+    XppAiVendPaymentService paymentService;
+
+    paymentService = new XppAiVendPaymentService();
+
+    return paymentService.process(_contract);
+}

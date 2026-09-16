@@ -19,11 +19,6 @@ The explanation may describe a supported domain. For a gated domain, clearly sep
 
 ## Output
 
-1. Purpose and observed behavior.
-2. Evidence map with `Confirmed`, `Likely`, `Hypothesis`, and `Unknown` labels.
-3. Object and call-flow explanation.
-4. Relevant framework/reference behavior.
-5. Execution, security, transaction, company/partition, CIL, and deployment context.
-6. Unknowns, conflicts, and the next evidence required.
+Answer first with the purpose and observed behavior. Include only relevant call flow, framework context, material evidence labels, and unknowns. Add execution, security, transaction, company/partition, CIL, deployment, or next-evidence detail only when it changes the explanation.
 
 Do not invent omitted branches, metadata, configuration, root cause, or external contracts.

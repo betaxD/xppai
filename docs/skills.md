@@ -63,6 +63,10 @@ Analyze FormLetter and posting-related behavior, sequencing, and side effects.
 
 Review for structural issues, coupling, responsibility drift, and long-term maintenance risk.
 
+### `xppai-ririchard`
+
+Review an XPO only for the approved Ririchard/Frigelar rules covering naming, `TagFGL`, database access, review hygiene, user-facing text, AIF conventions, and `changeCompany`.
+
 ### `xppai-exportxpo`
 
 Generate a ready-to-paste X++ export job for specific AOT objects.

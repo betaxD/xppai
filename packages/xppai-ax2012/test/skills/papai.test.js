@@ -36,12 +36,34 @@ test('Papai maps accepted actions directly and gates production-ready guidance',
   assert.match(papai, /intake[\s\S]*at most once per request/i);
 });
 
+test('Papai asks only when missing context blocks the next safe action', () => {
+  const papai = readSkill('xppai-ax2012-papai');
+  const agent = readSkill('xppai-ax2012-papai', 'AGENT.md');
+
+  for (const contract of [papai, agent]) {
+    assert.match(contract, /ask[\s\S]{0,80}only[\s\S]{0,80}blocks the next safe action/i);
+  }
+});
+
 test('the colocated Papai agent mirrors the routing and stopping contract', () => {
   const agent = readSkill('xppai-ax2012-papai', 'AGENT.md');
 
   assert.match(agent, /acceptedActions:\s*explain, architect, risk, codefix, dev/);
   assert.match(agent, /maxInvestigationCycles:\s*3/);
   assert.match(agent, /return Unknown and the next required evidence/i);
+});
+
+test('Papai keeps orchestration internal and returns the useful result first', () => {
+  const papai = readSkill('xppai-ax2012-papai');
+  const agent = readSkill('xppai-ax2012-papai', 'AGENT.md');
+
+  for (const contract of [papai, agent]) {
+    assert.match(contract, /result first/i);
+    assert.match(contract, /do not narrate|keep .* internal/i);
+    assert.match(contract, /routing/i);
+    assert.match(contract, /references/i);
+    assert.match(contract, /only when .*affect|unless .*affect/i);
+  }
 });
 
 test('foundational skill contracts validate as one canonical AX 2012 tree', () => {

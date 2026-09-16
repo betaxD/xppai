@@ -1,0 +1,20 @@
+public class XppAiVendPaymentController extends SysOperationServiceController
+{
+}
+
+public void new()
+{
+    super(
+        classStr(XppAiVendPaymentService),
+        methodStr(XppAiVendPaymentService, process),
+        SysOperationExecutionMode::Synchronous);
+}
+
+public static void main(Args _args)
+{
+    XppAiVendPaymentController controller;
+
+    controller = new XppAiVendPaymentController();
+    controller.parmArgs(_args);
+    controller.startOperation();
+}

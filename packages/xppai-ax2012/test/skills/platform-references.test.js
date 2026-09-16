@@ -62,6 +62,15 @@ test('model-store, language, and SysOperation references cover their production 
   }
 });
 
+test('X++ guidance does not introduce cross-company code without an explicit request', () => {
+  const manifest = loadReferenceManifest(PACKAGE_ROOT);
+  const language = readReference(referenceById(manifest, 'platform.xpp-language'));
+
+  assert.match(language, /current company/i);
+  assert.match(language, /do not generate[\s\S]*changeCompany[\s\S]*crossCompany/i);
+  assert.match(language, /user explicitly requests|explicitly requested/i);
+});
+
 test('AIF, security, and data-framework references define safe operational gates', () => {
   const manifest = loadReferenceManifest(PACKAGE_ROOT);
   const aif = readReference(referenceById(manifest, 'platform.aif'));

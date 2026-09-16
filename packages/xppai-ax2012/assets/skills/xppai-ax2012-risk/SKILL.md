@@ -24,4 +24,4 @@ Do not turn missing evidence into a low score. Unknown prerequisites increase un
 
 ## Output
 
-Return the overall rating, per-dimension risk score with evidence, blast radius, failure modes, prerequisites, mitigations, tests, deployment/rollback gates, residual risk, unknowns, and next evidence required.
+Return the overall rating first. Include only relevant scored dimensions, blast radius, failure modes, mitigations, tests, deployment/rollback gates, residual risk, and unknowns. Omit zero-exposure dimensions and internal evidence bookkeeping unless the user asks for the complete matrix.

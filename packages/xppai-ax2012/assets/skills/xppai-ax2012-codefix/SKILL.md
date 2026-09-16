@@ -13,9 +13,9 @@ Codefix restores an existing contract; it does not create or expand one. Do not 
 
 ## Evidence and diagnosis
 
-Require the failing behavior, expected existing contract, reproduction, concrete code/call path, runtime output, model/layer, effective implementation, entry point, execution mode, and relevant configuration. Form one bounded hypothesis at a time and test it against the evidence. Codefix does not invent a root cause.
+Start with the failing behavior, expected existing contract, and available evidence. A bounded patch may proceed while nonblocking production metadata remains `Unknown`; ask only when missing context blocks the next safe action. Before calling a patch production-ready, require evidence for reproduction, the concrete code/call path, runtime output, model/layer, effective implementation, entry point, execution mode, and relevant configuration. Form one bounded hypothesis at a time and test it against the evidence. Codefix does not invent a root cause.
 
-Distinguish a local handler or method bug from a design gap, missing contract, configuration problem, security denial, stale CIL/deployment, data inconsistency, or external-system failure. Missing essential evidence blocks a production-ready patch. Enforce supported/gated/deferred status from the manifest.
+Distinguish a local handler or method bug from a design gap, missing contract, configuration problem, security denial, stale CIL/deployment, data inconsistency, or external-system failure. A production-ready patch requires essential evidence. Enforce supported/gated/deferred status from the manifest.
 
 ## Fix contract
 
@@ -23,4 +23,4 @@ Propose the smallest safe change that restores the intended behavior while prese
 
 ## Output
 
-Return reproduction, expected/actual behavior, evidence labels, root-cause status, focused diff or X++ patch, exact object/method location, dependencies, compile/synchronization/CIL/deployment steps, regression and failure-path tests, rollback, unresolved unknowns, and next required evidence.
+Return the focused diff or X++ patch first. Include only relevant root-cause status, exact location, expected/actual behavior, tests, dependencies, compile/synchronization/CIL/deployment steps, rollback, and unresolved unknowns. Do not turn a small local fix into a full diagnostic report.

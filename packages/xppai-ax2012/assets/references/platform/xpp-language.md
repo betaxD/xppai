@@ -15,7 +15,7 @@ Pre/post event handlers are not Chain of Command and have no `next` call. Valida
 
 For CLR interop, distinguish X++ exceptions from `Exception::CLRError`; inspect the CLR inner-exception chain and preserve the host identity, tier, assembly version, and deployment evidence.
 
-`changeCompany` and `crossCompany` operate only across companies in the current partition. They do not cross partitions. Do not hardcode `DAT`, `Initial`, or another default when the contract requires explicit context.
+Generated X++ stays in the current company. Do not generate `changeCompany` or `crossCompany` unless the user explicitly requests cross-company behavior. When explicitly requested, they operate only across companies in the current partition and do not cross partitions. Do not hardcode `DAT`, `Initial`, or another default when the requested contract requires explicit context.
 
 ## Evidence required
 

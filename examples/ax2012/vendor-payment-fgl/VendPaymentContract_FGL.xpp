@@ -1,0 +1,85 @@
+[DataContractAttribute]
+public class VendPaymentContract_FGL
+{
+    str             companyCode;
+    str             accountingDocument;
+    str             fiscalYear;
+    str             clearingDocument;
+    TransDate       clearingDate;
+    str             supplier;
+    AmountCur       clearedAmount;
+    CurrencyCode    currency;
+    str             referenceDocumentNumber;
+    str             status;
+}
+
+[DataMemberAttribute('CompanyCode')]
+public str parmCompanyCode(str _companyCode = companyCode)
+{
+    companyCode = _companyCode;
+    return companyCode;
+}
+
+[DataMemberAttribute('AccountingDocument')]
+public str parmAccountingDocument(str _accountingDocument = accountingDocument)
+{
+    accountingDocument = _accountingDocument;
+    return accountingDocument;
+}
+
+[DataMemberAttribute('FiscalYear')]
+public str parmFiscalYear(str _fiscalYear = fiscalYear)
+{
+    fiscalYear = _fiscalYear;
+    return fiscalYear;
+}
+
+[DataMemberAttribute('ClearingDocument')]
+public str parmClearingDocument(str _clearingDocument = clearingDocument)
+{
+    clearingDocument = _clearingDocument;
+    return clearingDocument;
+}
+
+[DataMemberAttribute('ClearingDate')]
+public TransDate parmClearingDate(TransDate _clearingDate = clearingDate)
+{
+    clearingDate = _clearingDate;
+    return clearingDate;
+}
+
+[DataMemberAttribute('Supplier')]
+public str parmSupplier(str _supplier = supplier)
+{
+    supplier = _supplier;
+    return supplier;
+}
+
+[DataMemberAttribute('ClearedAmount')]
+public AmountCur parmClearedAmount(AmountCur _clearedAmount = clearedAmount)
+{
+    clearedAmount = _clearedAmount;
+    return clearedAmount;
+}
+
+[DataMemberAttribute('Currency')]
+public CurrencyCode parmCurrency(CurrencyCode _currency = currency)
+{
+    currency = _currency;
+    return currency;
+}
+
+[DataMemberAttribute('ReferenceDocumentNumber')]
+public str parmReferenceDocumentNumber(
+    str _referenceDocumentNumber = referenceDocumentNumber)
+{
+    referenceDocumentNumber = _referenceDocumentNumber;
+    return referenceDocumentNumber;
+}
+
+[DataMemberAttribute('Status')]
+public str parmStatus(str _status = status)
+{
+    status = _status;
+    return status;
+}

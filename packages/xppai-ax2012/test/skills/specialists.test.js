@@ -45,6 +45,14 @@ test('codefix restores existing behavior while dev creates or expands behavior',
   assert.match(dev, /compile[\s\S]*database synchronization[\s\S]*CIL/i);
 });
 
+test('codefix permits a bounded patch without demanding nonblocking production metadata', () => {
+  const codefix = readSkill('xppai-ax2012-codefix');
+
+  assert.match(codefix, /available evidence/i);
+  assert.match(codefix, /bounded patch/i);
+  assert.match(codefix, /ask only[\s\S]{0,80}blocks the next safe action/i);
+});
+
 test('specialists expose intent-specific evidence and output contracts', () => {
   const explain = readSkill('xppai-ax2012-explain');
   const architect = readSkill('xppai-ax2012-architect');
@@ -60,12 +68,42 @@ test('specialists expose intent-specific evidence and output contracts', () => {
   }
 });
 
+test('public skills default to lean execution without weakening evidence gates', () => {
+  const publicSkills = ['core', 'intake', 'papai', ...SPECIALISTS];
+
+  for (const name of publicSkills) {
+    const skill = readSkill(`xppai-ax2012-${name}`);
+    assert.match(skill, /result first|answer first|implementation first|rating first|recommendation first|patch first/i);
+    assert.match(skill, /only .*relevant|relevant .*only/i);
+  }
+
+  const core = readSkill('xppai-ax2012-core');
+  assert.match(core, /do not create/i);
+  assert.match(core, /directories/i);
+  assert.match(core, /documentation/i);
+  assert.match(core, /explicitly requests/i);
+  assert.match(core, /ask only.*block/i);
+  assert.match(core, /safety|evidence/i);
+});
+
+test('generated X++ stays in the current company unless cross-company behavior is explicitly requested', () => {
+  const core = readSkill('xppai-ax2012-core');
+  const dev = readSkill('xppai-ax2012-dev');
+
+  for (const skill of [core, dev]) {
+    assert.match(skill, /current company/i);
+    assert.match(skill, /do not generate[\s\S]*changeCompany[\s\S]*crossCompany/i);
+    assert.match(skill, /user explicitly requests|explicitly requested/i);
+  }
+});
+
 test('command wrappers launch the matching specialist or Papai with bounded inputs', () => {
   for (const name of [...SPECIALISTS, 'papai']) {
     const commandName = `xppai-ax2012-${name}`;
     const command = readCommand(commandName);
     assert.match(command, new RegExp(`\\b${commandName}\\b`));
     assert.match(command, /Expected inputs/i);
+    assert.match(command, /ask.*only when.*blocks|ask only when.*blocks/i);
     assert.match(command, /baseline conflict/i);
     assert.match(command, /Microsoft Dynamics AX 2012 R3/);
   }

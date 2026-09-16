@@ -1,0 +1,52 @@
+[DataContractAttribute]
+public class XppAiVendPaymentResultContract
+{
+    DataAreaId      dataAreaId;
+    JournalId       journalNum;
+    Voucher         voucher;
+    AmountCur       paymentAmount;
+    CurrencyCode    currencyCode;
+    NoYesId         posted;
+}
+
+[DataMemberAttribute('DataAreaId')]
+public DataAreaId parmDataAreaId(DataAreaId _dataAreaId = dataAreaId)
+{
+    dataAreaId = _dataAreaId;
+    return dataAreaId;
+}
+
+[DataMemberAttribute('JournalNum')]
+public JournalId parmJournalNum(JournalId _journalNum = journalNum)
+{
+    journalNum = _journalNum;
+    return journalNum;
+}
+
+[DataMemberAttribute('Voucher')]
+public Voucher parmVoucher(Voucher _voucher = voucher)
+{
+    voucher = _voucher;
+    return voucher;
+}
+
+[DataMemberAttribute('PaymentAmount')]
+public AmountCur parmPaymentAmount(AmountCur _paymentAmount = paymentAmount)
+{
+    paymentAmount = _paymentAmount;
+    return paymentAmount;
+}
+
+[DataMemberAttribute('CurrencyCode')]
+public CurrencyCode parmCurrencyCode(CurrencyCode _currencyCode = currencyCode)
+{
+    currencyCode = _currencyCode;
+    return currencyCode;
+}
+
+[DataMemberAttribute('Posted')]
+public NoYesId parmPosted(NoYesId _posted = posted)
+{
+    posted = _posted;
+    return posted;
+}

@@ -1,0 +1,89 @@
+[DataContractAttribute]
+public class XppAiVendPaymentContract
+{
+    DataAreaId      dataAreaId;
+    JournalNameId   journalNameId;
+    VendAccount     vendAccount;
+    InvoiceId       invoiceId;
+    TransDate       paymentDate;
+    BankAccountId   bankAccountId;
+    PaymMode        paymMode;
+    PaymReference   paymReference;
+    Description     description;
+    NoYesId         postPayment;
+}
+
+public void new()
+{
+    postPayment = NoYes::Yes;
+}
+
+[DataMemberAttribute('DataAreaId')]
+public DataAreaId parmDataAreaId(DataAreaId _dataAreaId = dataAreaId)
+{
+    dataAreaId = _dataAreaId;
+    return dataAreaId;
+}
+
+[DataMemberAttribute('JournalNameId')]
+public JournalNameId parmJournalNameId(JournalNameId _journalNameId = journalNameId)
+{
+    journalNameId = _journalNameId;
+    return journalNameId;
+}
+
+[DataMemberAttribute('VendAccount')]
+public VendAccount parmVendAccount(VendAccount _vendAccount = vendAccount)
+{
+    vendAccount = _vendAccount;
+    return vendAccount;
+}
+
+[DataMemberAttribute('InvoiceId')]
+public InvoiceId parmInvoiceId(InvoiceId _invoiceId = invoiceId)
+{
+    invoiceId = _invoiceId;
+    return invoiceId;
+}
+
+[DataMemberAttribute('PaymentDate')]
+public TransDate parmPaymentDate(TransDate _paymentDate = paymentDate)
+{
+    paymentDate = _paymentDate;
+    return paymentDate;
+}
+
+[DataMemberAttribute('BankAccountId')]
+public BankAccountId parmBankAccountId(BankAccountId _bankAccountId = bankAccountId)
+{
+    bankAccountId = _bankAccountId;
+    return bankAccountId;
+}
+
+[DataMemberAttribute('PaymMode')]
+public PaymMode parmPaymMode(PaymMode _paymMode = paymMode)
+{
+    paymMode = _paymMode;
+    return paymMode;
+}
+
+[DataMemberAttribute('PaymReference')]
+public PaymReference parmPaymReference(PaymReference _paymReference = paymReference)
+{
+    paymReference = _paymReference;
+    return paymReference;
+}
+
+[DataMemberAttribute('Description')]
+public Description parmDescription(Description _description = description)
+{
+    description = _description;
+    return description;
+}
+
+[DataMemberAttribute('PostPayment')]
+public NoYesId parmPostPayment(NoYesId _postPayment = postPayment)
+{
+    postPayment = _postPayment;
+    return postPayment;
+}

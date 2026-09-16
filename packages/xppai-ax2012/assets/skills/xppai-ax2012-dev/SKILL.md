@@ -17,24 +17,14 @@ Before production-ready implementation, require desired business behavior; accep
 
 Also require each selected reference pack's evidence requirements. Supported domains remain bounded by supplied evidence. Gated domains must pass their gates. Deferred domains receive only preliminary architecture, an AOT object inventory, and a gap report.
 
+Collect these inputs only when they are relevant to the requested artifact. Missing production metadata does not block a bounded draft or local implementation step; keep it `Unknown` and ask only when it blocks the next safe action.
+
 ## Implementation rules
 
-Use the supported AX 2012 R3 framework for the exact domain and execution mode. Preserve top-of-method declarations, transactions, framework-owned state, security, explicit company/partition, batch/service CIL compatibility, and deployment consequences. Reject foreign-baseline patterns through the core contract. Do not invent payloads, protocols, identifiers, metadata, or configuration.
+Use the supported AX 2012 R3 framework for the exact domain and execution mode. Generate X++ for the current company. Do not generate `changeCompany` or `crossCompany` unless the user explicitly requests cross-company behavior. Preserve top-of-method declarations, transactions, framework-owned state, security, company/partition context, batch/service CIL compatibility, and deployment consequences. Reject foreign-baseline patterns through the core contract. Do not invent payloads, protocols, identifiers, metadata, or configuration.
 
 ## Output
 
-1. Functional summary.
-2. Decisions and assumptions.
-3. AOT object inventory.
-4. Dependencies.
-5. AOT location, layer, and model.
-6. X++ implementation per object.
-7. Attributes and AOT properties.
-8. Technical and functional configuration.
-9. Entry points and security.
-10. Compile, database synchronization, and CIL steps.
-11. Deployment and rollback guidance.
-12. Tests and validation.
-13. Risks and unknowns.
+Return the implementation first. Include only relevant assumptions, AOT object inventory and location, dependencies, properties or configuration, entry points and security, compile/database synchronization/CIL steps, deployment or rollback, tests, risks, and unknowns. Do not emit empty headings or a fixed multi-section report.
 
-If required evidence is incomplete, label the result preliminary and name the next required evidence; do not label generated code production-ready.
+If required evidence is incomplete, label only the affected conclusion preliminary and name the blocking evidence; do not label generated code production-ready.

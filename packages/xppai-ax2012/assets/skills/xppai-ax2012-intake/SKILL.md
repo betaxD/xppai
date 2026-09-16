@@ -29,4 +29,4 @@ For XPO evidence:
 - If layer, model, build, CU/hotfix, topology, or external contract evidence is absent, allow bounded analysis but keep those facts `Unknown` and block production-ready claims that depend on them.
 - For non-XPO evidence, identify its source, scope, completeness, and conflicts before routing it.
 
-Return one normalized evidence summary with confirmed facts, likely observations, hypotheses to test, unknowns, baseline conflicts, completeness, provenance, and the next evidence required by any failed gate.
+Pass one normalized evidence summary downstream, with only relevant facts, uncertainty, conflicts, completeness, provenance, and failed-gate requirements. Keep intake internal and return the requested result first; expose the summary only when a conflict or failed gate affects the answer, or when the user asks for it.
