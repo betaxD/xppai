@@ -93,11 +93,7 @@ function parseXpo(bytes, context = {}) {
           finishFragment(candidate.endCharacter, candidate.endByte, candidate.line);
           continue;
         }
-        if ((registered && candidate.name) || (!registered && candidate.name)) {
-          finishFragment(candidate.startCharacter, candidate.startByte, Math.max(unknown.line, candidate.line - 1));
-        } else {
-          continue;
-        }
+        continue;
       }
       if (registered && candidate.name) {
         open = { entry: registered, start: candidate };

@@ -61,6 +61,11 @@ function withIndexLock(cacheDir, operation) {
       fs.writeFileSync(descriptor, `${process.pid}\n`, 'utf8');
       fs.fsyncSync(descriptor);
     } catch (error) {
+      if (descriptor !== undefined) {
+        fs.closeSync(descriptor);
+        descriptor = undefined;
+        fs.rmSync(lockPath, { force: true });
+      }
       if (error.code !== 'EEXIST') throw error;
       try {
         const ownerPid = Number.parseInt(fs.readFileSync(lockPath, 'utf8'), 10);
@@ -114,6 +119,20 @@ function resolveCachePath(cacheDir, relativePath) {
   const relation = path.relative(root, resolved);
   if (relation.startsWith('..') || path.isAbsolute(relation)) {
     throw new Error(`revision path escapes cache: ${relativePath}`);
+  }
+  const realpath = fs.realpathSync.native || fs.realpathSync;
+  const canonicalRoot = realpath(root);
+  let existing = resolved;
+  while (!fs.existsSync(existing)) {
+    const parent = path.dirname(existing);
+    if (parent === existing) break;
+    existing = parent;
+  }
+  const canonicalExisting = realpath(existing);
+  const canonicalResolved = path.resolve(canonicalExisting, path.relative(existing, resolved));
+  const canonicalRelation = path.relative(canonicalRoot, canonicalResolved);
+  if (canonicalRelation.startsWith('..') || path.isAbsolute(canonicalRelation)) {
+    throw new Error(`revision path escapes cache through a filesystem link: ${relativePath}`);
   }
   return resolved;
 }

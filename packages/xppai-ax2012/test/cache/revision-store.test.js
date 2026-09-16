@@ -246,6 +246,82 @@ test('concurrent appendRevision calls retain every committed source', async (t) 
   assert.equal(readIndex(cacheDir).sources.length, count);
 });
 
+test('readRevision rejects an extracts symlink or junction that leaves the cache', (t) => {
+  const root = useTempDir(t, 'xppai-extract-link-');
+  const cacheDir = path.join(root, 'cache');
+  const appended = appendRevision({
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes: bytes('export'),
+    parsed: { objects: [] },
+  });
+  const extracts = path.join(cacheDir, 'extracts');
+  const outsideExtracts = path.join(root, 'outside-extracts');
+  fs.renameSync(extracts, outsideExtracts);
+  try {
+    fs.symlinkSync(outsideExtracts, extracts, process.platform === 'win32' ? 'junction' : 'dir');
+  } catch (error) {
+    if (error.code === 'EPERM' || error.code === 'EACCES') {
+      t.skip(`filesystem links unavailable: ${error.code}`);
+      return;
+    }
+    throw error;
+  }
+
+  assert.throws(() => readRevision(cacheDir, appended.revisionId), /escapes cache/i);
+});
+
+test('appendRevision rejects a bytes symlink or junction that leaves the cache', (t) => {
+  const root = useTempDir(t, 'xppai-byte-link-');
+  const cacheDir = path.join(root, 'cache');
+  const bytesLink = path.join(cacheDir, 'bytes');
+  const outsideBytes = path.join(root, 'outside-bytes');
+  fs.mkdirSync(cacheDir, { recursive: true });
+  fs.mkdirSync(outsideBytes, { recursive: true });
+  try {
+    fs.symlinkSync(outsideBytes, bytesLink, process.platform === 'win32' ? 'junction' : 'dir');
+  } catch (error) {
+    if (error.code === 'EPERM' || error.code === 'EACCES') {
+      t.skip(`filesystem links unavailable: ${error.code}`);
+      return;
+    }
+    throw error;
+  }
+
+  assert.throws(() => appendRevision({
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes: bytes('export'),
+    parsed: { objects: [] },
+  }), /escapes cache/i);
+  assert.deepEqual(fs.readdirSync(outsideBytes), []);
+});
+
+test('a partial lock acquisition failure does not strand the cache lock', (t) => {
+  const root = useTempDir(t, 'xppai-lock-cleanup-');
+  const cacheDir = path.join(root, 'cache');
+  const input = {
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes: bytes('export'),
+    parsed: { objects: [] },
+  };
+  const lockFile = path.join(cacheDir, '.revision-index.lock');
+  const originalWrite = fs.writeFileSync;
+  fs.writeFileSync = (target, ...args) => {
+    if (typeof target === 'number') throw new Error('injected lock write failure');
+    return originalWrite(target, ...args);
+  };
+  try {
+    assert.throws(() => appendRevision(input), /injected lock write failure/i);
+  } finally {
+    fs.writeFileSync = originalWrite;
+  }
+
+  assert.equal(fs.existsSync(lockFile), false);
+  assert.doesNotThrow(() => appendRevision(input));
+});
+
 test('compareRevisions reports added, modified, and removed objects and rejects source mismatch', (t) => {
   const root = useTempDir(t, 'xppai-compare-');
   const cacheDir = path.join(root, 'cache');

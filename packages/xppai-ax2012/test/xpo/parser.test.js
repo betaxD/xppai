@@ -60,6 +60,22 @@ test('an unknown top-level token is preserved as indeterminate', () => {
   assert.equal(parsed.completeness, 'indeterminate');
 });
 
+test('registered-looking payload inside an unknown object is not promoted', () => {
+  const source = [
+    'FUTUREOBJECT #Outer\n',
+    'CLASS #Nested\n',
+    'ENDCLASS\n',
+    'ENDFUTUREOBJECT\n',
+  ].join('');
+  const parsed = parseXpo(Buffer.from(source, 'utf8'));
+
+  assert.equal(parsed.objects.length, 0);
+  assert.equal(parsed.fragments.length, 1);
+  assert.equal(parsed.fragments[0].rawType, 'FUTUREOBJECT');
+  assert.equal(parsed.fragments[0].content, source);
+  assert.equal(parsed.completeness, 'indeterminate');
+});
+
 test('a provably missing required closer makes the object and file incomplete', () => {
   const parsed = parseXpo(fixture('incomplete.xpo'));
   assert.equal(parsed.objects.length, 1);
