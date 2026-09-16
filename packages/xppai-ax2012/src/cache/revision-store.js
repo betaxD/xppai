@@ -7,6 +7,9 @@ const path = require('node:path');
 const { readValidatedJson, writeIdentityJson } = require('./identity');
 
 const INDEX_FILE = 'index.json';
+const LOCK_FILE = '.revision-index.lock';
+const LOCK_TIMEOUT_MS = 10000;
+const LOCK_WAIT_ARRAY = new Int32Array(new SharedArrayBuffer(4));
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
@@ -45,6 +48,51 @@ function writeIndex(cacheDir, index) {
   return writeIdentityJson(indexPath(cacheDir), { sources: index.sources });
 }
 
+function withIndexLock(cacheDir, operation) {
+  const root = path.resolve(cacheDir);
+  const lockPath = path.join(root, LOCK_FILE);
+  const deadline = Date.now() + LOCK_TIMEOUT_MS;
+  fs.mkdirSync(root, { recursive: true });
+
+  let descriptor;
+  while (descriptor === undefined) {
+    try {
+      descriptor = fs.openSync(lockPath, 'wx', 0o600);
+      fs.writeFileSync(descriptor, `${process.pid}\n`, 'utf8');
+      fs.fsyncSync(descriptor);
+    } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      try {
+        const ownerPid = Number.parseInt(fs.readFileSync(lockPath, 'utf8'), 10);
+        let ownerAlive = Number.isInteger(ownerPid) && ownerPid > 0;
+        if (ownerAlive) {
+          try {
+            process.kill(ownerPid, 0);
+          } catch (ownerError) {
+            ownerAlive = ownerError.code === 'EPERM';
+          }
+        }
+        if (!ownerAlive && Date.now() - fs.statSync(lockPath).mtimeMs > 1000) {
+          fs.rmSync(lockPath);
+          continue;
+        }
+      } catch (inspectionError) {
+        if (inspectionError.code === 'ENOENT') continue;
+        throw inspectionError;
+      }
+      if (Date.now() >= deadline) throw new Error(`timed out waiting for revision index lock at ${lockPath}`);
+      Atomics.wait(LOCK_WAIT_ARRAY, 0, 0, 10);
+    }
+  }
+
+  try {
+    return operation();
+  } finally {
+    fs.closeSync(descriptor);
+    fs.rmSync(lockPath, { force: true });
+  }
+}
+
 function extractRelativePath(sourceId, byteHash) {
   return path.join('extracts', sourceId, `${byteHash}.json`);
 }
@@ -55,13 +103,17 @@ function byteRelativePath(sourceId, byteHash) {
 
 function resolveCachePath(cacheDir, relativePath) {
   if (typeof relativePath !== 'string' || !relativePath) {
-    throw new Error('revision byte path is missing');
+    throw new Error('revision path is missing');
+  }
+  if (path.posix.isAbsolute(relativePath) || path.win32.isAbsolute(relativePath)) {
+    throw new Error(`revision path escapes cache: ${relativePath}`);
   }
   const root = path.resolve(cacheDir);
-  const resolved = path.resolve(root, relativePath);
+  const portableRelativePath = relativePath.replace(/[\\/]/g, path.sep);
+  const resolved = path.resolve(root, portableRelativePath);
   const relation = path.relative(root, resolved);
   if (relation.startsWith('..') || path.isAbsolute(relation)) {
-    throw new Error(`revision byte path escapes cache: ${relativePath}`);
+    throw new Error(`revision path escapes cache: ${relativePath}`);
   }
   return resolved;
 }
@@ -112,8 +164,6 @@ function backfillRevisionBytes(cacheDir, revision, originalBytes, byteHash, rela
     throw new Error(`revision ${revision.revisionId} byte path mismatch`);
   }
 
-  preserveByteArtifact(resolveCachePath(cacheDir, relativeBytes), originalBytes, byteHash);
-
   const extractPath = resolveCachePath(cacheDir, revision.extractPath);
   const extract = readValidatedJson(extractPath, 'revision extract');
   if (extract.revisionId !== revision.revisionId || extract.byteHash !== byteHash) {
@@ -122,10 +172,29 @@ function backfillRevisionBytes(cacheDir, revision, originalBytes, byteHash, rela
   if (extract.bytePath !== undefined && extract.bytePath !== relativeBytes) {
     throw new Error(`revision ${revision.revisionId} extract byte path mismatch`);
   }
-  if (extract.bytePath === undefined) {
-    writeIdentityJson(extractPath, { ...extract, bytePath: relativeBytes });
+  const bytePath = resolveCachePath(cacheDir, relativeBytes);
+  const byteExisted = fs.existsSync(bytePath);
+  const originalExtract = fs.readFileSync(extractPath);
+  const originalRevisionBytePath = revision.bytePath;
+  try {
+    preserveByteArtifact(bytePath, originalBytes, byteHash);
+    if (extract.bytePath === undefined) {
+      writeIdentityJson(extractPath, { ...extract, bytePath: relativeBytes });
+    }
+    revision.bytePath = relativeBytes;
+  } catch (error) {
+    if (originalRevisionBytePath === undefined) delete revision.bytePath;
+    else revision.bytePath = originalRevisionBytePath;
+    fs.writeFileSync(extractPath, originalExtract);
+    if (!byteExisted) fs.rmSync(bytePath, { force: true });
+    throw error;
   }
-  revision.bytePath = relativeBytes;
+  return () => {
+    if (originalRevisionBytePath === undefined) delete revision.bytePath;
+    else revision.bytePath = originalRevisionBytePath;
+    fs.writeFileSync(extractPath, originalExtract);
+    if (!byteExisted) fs.rmSync(bytePath, { force: true });
+  };
 }
 
 function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
@@ -137,57 +206,71 @@ function appendRevision({ cacheDir, sourcePath, originalBytes, parsed }) {
     throw new Error('parsed.objects must be an array');
   }
 
-  const resolvedSourcePath = path.resolve(String(sourcePath));
-  const normalizedSourcePath = normalizeSourcePath(resolvedSourcePath);
-  const sourceId = sourceIdForPath(resolvedSourcePath);
-  const byteHash = sha256(originalBytes);
-  const revisionId = `${sourceId}-${byteHash}`;
-  const relativeExtract = extractRelativePath(sourceId, byteHash);
-  const relativeBytes = byteRelativePath(sourceId, byteHash);
-  const extractPath = path.join(path.resolve(cacheDir), relativeExtract);
-  const index = readIndex(cacheDir);
-  let source = index.sources.find((entry) => entry.sourceId === sourceId);
+  return withIndexLock(cacheDir, () => {
+    const resolvedSourcePath = path.resolve(String(sourcePath));
+    const normalizedSourcePath = normalizeSourcePath(resolvedSourcePath);
+    const sourceId = sourceIdForPath(resolvedSourcePath);
+    const byteHash = sha256(originalBytes);
+    const revisionId = `${sourceId}-${byteHash}`;
+    const relativeExtract = extractRelativePath(sourceId, byteHash);
+    const relativeBytes = byteRelativePath(sourceId, byteHash);
+    const extractPath = resolveCachePath(cacheDir, relativeExtract);
+    const index = readIndex(cacheDir);
+    let source = index.sources.find((entry) => entry.sourceId === sourceId);
 
-  if (!source) {
-    source = {
-      sourceId,
-      sourcePath: resolvedSourcePath,
-      normalizedSourcePath,
-      activeRevisionId: null,
-      revisions: [],
-    };
-    index.sources.push(source);
-  }
+    if (!source) {
+      source = {
+        sourceId,
+        sourcePath: resolvedSourcePath,
+        normalizedSourcePath,
+        activeRevisionId: null,
+        revisions: [],
+      };
+      index.sources.push(source);
+    }
 
-  let revision = source.revisions.find((entry) => entry.revisionId === revisionId);
-  if (!revision) {
-    const createdAt = new Date().toISOString();
-    revision = {
-      revisionId,
-      byteHash,
-      bytePath: relativeBytes,
-      extractPath: relativeExtract,
-      createdAt,
-    };
-    preserveByteArtifact(resolveCachePath(cacheDir, relativeBytes), originalBytes, byteHash);
-    writeIdentityJson(extractPath, {
-      sourceId,
-      sourcePath: resolvedSourcePath,
-      normalizedSourcePath,
-      revisionId,
-      byteHash,
-      bytePath: relativeBytes,
-      createdAt,
-      parsed,
-    });
-    source.revisions.push(revision);
-  } else {
-    backfillRevisionBytes(cacheDir, revision, originalBytes, byteHash, relativeBytes);
-  }
+    let revision = source.revisions.find((entry) => entry.revisionId === revisionId);
+    let rollbackMigration = null;
+    if (!revision) {
+      const createdAt = new Date().toISOString();
+      revision = {
+        revisionId,
+        byteHash,
+        bytePath: relativeBytes,
+        extractPath: relativeExtract,
+        createdAt,
+      };
+      preserveByteArtifact(resolveCachePath(cacheDir, relativeBytes), originalBytes, byteHash);
+      writeIdentityJson(extractPath, {
+        sourceId,
+        sourcePath: resolvedSourcePath,
+        normalizedSourcePath,
+        revisionId,
+        byteHash,
+        bytePath: relativeBytes,
+        createdAt,
+        parsed,
+      });
+      source.revisions.push(revision);
+    } else {
+      rollbackMigration = backfillRevisionBytes(
+        cacheDir,
+        revision,
+        originalBytes,
+        byteHash,
+        relativeBytes,
+      );
+    }
 
-  source.activeRevisionId = revisionId;
-  writeIndex(cacheDir, index);
-  return { sourceId, revisionId, byteHash, extractPath };
+    source.activeRevisionId = revisionId;
+    try {
+      writeIndex(cacheDir, index);
+    } catch (error) {
+      if (rollbackMigration) rollbackMigration();
+      throw error;
+    }
+    return { sourceId, revisionId, byteHash, extractPath };
+  });
 }
 
 function findSource(index, sourceId) {
@@ -208,7 +291,7 @@ function readRevision(cacheDir, revisionId) {
   const index = readIndex(cacheDir);
   const { revision } = findRevision(index, revisionId);
   const extract = readValidatedJson(
-    path.join(path.resolve(cacheDir), revision.extractPath),
+    resolveCachePath(cacheDir, revision.extractPath),
     'revision extract',
   );
   if (extract.revisionId !== revisionId) throw new Error('revision extract identity mismatch');
@@ -226,13 +309,15 @@ function readRevisionBytes(cacheDir, revisionId) {
 }
 
 function setActiveRevision(cacheDir, sourceId, revisionId) {
-  const index = readIndex(cacheDir);
-  const source = findSource(index, sourceId);
-  if (!source.revisions.some((entry) => entry.revisionId === revisionId)) {
-    throw new Error(`revision ${revisionId} does not belong to source ${sourceId}`);
-  }
-  source.activeRevisionId = revisionId;
-  writeIndex(cacheDir, index);
+  withIndexLock(cacheDir, () => {
+    const index = readIndex(cacheDir);
+    const source = findSource(index, sourceId);
+    if (!source.revisions.some((entry) => entry.revisionId === revisionId)) {
+      throw new Error(`revision ${revisionId} does not belong to source ${sourceId}`);
+    }
+    source.activeRevisionId = revisionId;
+    writeIndex(cacheDir, index);
+  });
   return readRevision(cacheDir, revisionId);
 }
 

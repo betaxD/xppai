@@ -16,6 +16,10 @@ function lineCount(text) {
   return text.split(/\r\n|\n|\r/).length;
 }
 
+function lineAt(text, characterOffset) {
+  return lineCount(text.slice(0, characterOffset));
+}
+
 function offsets(start, endCharacter, endByte, endLine) {
   return {
     byte: { start: start.startByte, end: endByte },
@@ -51,6 +55,7 @@ function parseXpo(bytes, context = {}) {
       rawType: open.start.rawType,
       canonicalType: open.entry.canonicalType,
       name: open.start.name || 'Unknown',
+      rawHeader: open.start.header,
       header: open.start.header,
       hierarchy: Array.isArray(context.hierarchy) ? [...context.hierarchy] : [],
       offsets: offsets(open.start, endCharacter, endByte, endLine),
@@ -127,6 +132,39 @@ function parseXpo(bytes, context = {}) {
     );
   }
   if (unknown) finishFragment(decoded.text.length, decoded.bytes.length, lineCount(decoded.text));
+
+  if (objects.length || fragments.length) {
+    const covered = [...objects, ...fragments]
+      .map((value) => value.offsets.character)
+      .sort((left, right) => left.start - right.start);
+    const uncovered = [];
+    let cursor = 0;
+    for (const range of covered) {
+      if (range.start > cursor) uncovered.push({ start: cursor, end: range.start });
+      cursor = Math.max(cursor, range.end);
+    }
+    if (cursor < decoded.text.length) uncovered.push({ start: cursor, end: decoded.text.length });
+
+    for (const range of uncovered) {
+      const startByte = decoded.byteOffsetAt(range.start);
+      const endByte = decoded.byteOffsetAt(range.end);
+      fragments.push({
+        rawType: null,
+        name: null,
+        content: decoded.text.slice(range.start, range.end),
+        contentHash: sha256(decoded.bytes.subarray(startByte, endByte)),
+        offsets: {
+          byte: { start: startByte, end: endByte },
+          character: { start: range.start, end: range.end },
+          line: { start: lineAt(decoded.text, range.start), end: lineAt(decoded.text, range.end) },
+        },
+        completeness: 'indeterminate',
+        reason: 'unclassified source bytes',
+        provenance: provenance(context, decoded),
+      });
+    }
+    fragments.sort((left, right) => left.offsets.character.start - right.offsets.character.start);
+  }
 
   if (objects.length === 0 && fragments.length === 0) {
     fragments.push({

@@ -2,6 +2,7 @@
 
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -115,6 +116,134 @@ test('appendRevision backfills exact bytes for a compatible schema-v1 revision w
   assert.equal(second.revisionId, first.revisionId);
   assert.equal(migratedRevision.bytePath, migratedExtract.bytePath);
   assert.deepEqual(readRevisionBytes(cacheDir, first.revisionId), originalBytes);
+});
+
+test('legacy-byte migration rejects an invalid extract before creating bytes', (t) => {
+  const root = useTempDir(t, 'xppai-invalid-legacy-');
+  const cacheDir = path.join(root, 'cache');
+  const originalBytes = bytes('legacy export');
+  const input = {
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes,
+    parsed: { objects: [object('Class', 'Example', 'legacy class', 'legacy-hash')] },
+  };
+  appendRevision(input);
+  const indexFile = path.join(cacheDir, 'index.json');
+  const index = JSON.parse(fs.readFileSync(indexFile, 'utf8'));
+  const revision = index.sources[0].revisions[0];
+  const byteFile = path.join(cacheDir, revision.bytePath);
+  const extractFile = path.join(cacheDir, revision.extractPath);
+  const extract = JSON.parse(fs.readFileSync(extractFile, 'utf8'));
+
+  delete revision.bytePath;
+  delete extract.bytePath;
+  extract.revisionId = 'foreign-revision';
+  fs.rmSync(byteFile);
+  fs.writeFileSync(indexFile, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(extractFile, `${JSON.stringify(extract, null, 2)}\n`, 'utf8');
+
+  assert.throws(() => appendRevision(input), /extract identity mismatch/i);
+  assert.equal(fs.existsSync(byteFile), false);
+});
+
+test('legacy-byte migration rolls back extract and bytes when the index commit fails', (t) => {
+  const root = useTempDir(t, 'xppai-legacy-rollback-');
+  const cacheDir = path.join(root, 'cache');
+  const originalBytes = bytes('legacy export');
+  const input = {
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes,
+    parsed: { objects: [] },
+  };
+  appendRevision(input);
+  const indexFile = path.join(cacheDir, 'index.json');
+  const index = JSON.parse(fs.readFileSync(indexFile, 'utf8'));
+  const revision = index.sources[0].revisions[0];
+  const byteFile = path.join(cacheDir, revision.bytePath);
+  const extractFile = path.join(cacheDir, revision.extractPath);
+  const extract = JSON.parse(fs.readFileSync(extractFile, 'utf8'));
+  delete revision.bytePath;
+  delete extract.bytePath;
+  fs.rmSync(byteFile);
+  fs.writeFileSync(indexFile, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(extractFile, `${JSON.stringify(extract, null, 2)}\n`, 'utf8');
+  const beforeIndex = fs.readFileSync(indexFile);
+  const beforeExtract = fs.readFileSync(extractFile);
+  const originalRename = fs.renameSync;
+  fs.renameSync = (source, destination) => {
+    if (path.resolve(destination) === path.resolve(indexFile)) {
+      const error = new Error('injected index commit failure');
+      error.code = 'EIO';
+      throw error;
+    }
+    return originalRename(source, destination);
+  };
+
+  try {
+    assert.throws(() => appendRevision(input), /injected index commit failure/i);
+  } finally {
+    fs.renameSync = originalRename;
+  }
+  assert.deepEqual(fs.readFileSync(indexFile), beforeIndex);
+  assert.deepEqual(fs.readFileSync(extractFile), beforeExtract);
+  assert.equal(fs.existsSync(byteFile), false);
+});
+
+for (const traversalPath of ['../outside.json', '..\\outside.json']) {
+test(`readRevision rejects extract path ${traversalPath} that escapes the selected cache`, (t) => {
+  const root = useTempDir(t, 'xppai-extract-traversal-');
+  const cacheDir = path.join(root, 'cache');
+  const appended = appendRevision({
+    cacheDir,
+    sourcePath: path.join(root, 'Example.xpo'),
+    originalBytes: bytes('export'),
+    parsed: { objects: [] },
+  });
+  const indexFile = path.join(cacheDir, 'index.json');
+  const index = JSON.parse(fs.readFileSync(indexFile, 'utf8'));
+  const revision = index.sources[0].revisions[0];
+  const outside = path.join(root, 'outside.json');
+  fs.copyFileSync(path.join(cacheDir, revision.extractPath), outside);
+  revision.extractPath = traversalPath;
+  fs.writeFileSync(indexFile, `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+
+  assert.throws(() => readRevision(cacheDir, appended.revisionId), /escapes cache/i);
+});
+}
+
+test('concurrent appendRevision calls retain every committed source', async (t) => {
+  const root = useTempDir(t, 'xppai-concurrent-revisions-');
+  const cacheDir = path.join(root, 'cache');
+  const modulePath = path.join(__dirname, '..', '..', 'src', 'cache', 'revision-store.js');
+  const worker = [
+    "const { appendRevision } = require(process.argv[1]);",
+    'const cacheDir = process.argv[2];',
+    'const sourcePath = process.argv[3];',
+    'const startAt = Number(process.argv[4]);',
+    'while (Date.now() < startAt) {}',
+    "appendRevision({ cacheDir, sourcePath, originalBytes: Buffer.from(sourcePath), parsed: { objects: [] } });",
+  ].join(' ');
+  const count = 12;
+  const startAt = Date.now() + 1500;
+  const children = Array.from({ length: count }, (_, index) => new Promise((resolve, reject) => {
+    const child = childProcess.spawn(
+      process.execPath,
+      ['-e', worker, modulePath, cacheDir, path.join(root, `Source-${index}.xpo`), String(startAt)],
+      { stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('exit', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`worker exited ${code}: ${stderr}`));
+    });
+  }));
+
+  await Promise.all(children);
+  assert.equal(readIndex(cacheDir).sources.length, count);
 });
 
 test('compareRevisions reports added, modified, and removed objects and rejects source mismatch', (t) => {

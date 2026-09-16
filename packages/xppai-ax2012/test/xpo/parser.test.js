@@ -100,16 +100,44 @@ test('unrecognized text is preserved as one indeterminate whole-input fragment',
   assert.equal(parsed.completeness, 'indeterminate');
 });
 
-test('indented top-level tokens preserve their leading bytes and parse the object', () => {
+test('indented tokens remain indeterminate instead of becoming top-level objects', () => {
   const bytes = Buffer.from('  CLASS #Indented\r\n  ENDCLASS\r\n', 'utf8');
   const parsed = parseXpo(bytes);
 
-  assert.equal(parsed.fragments.length, 0);
-  assert.equal(parsed.objects.length, 1);
-  assert.equal(parsed.objects[0].name, 'Indented');
-  assert.equal(parsed.objects[0].content, bytes.toString('utf8'));
-  assert.deepEqual(parsed.objects[0].offsets.byte, { start: 0, end: bytes.length });
-  assert.equal(parsed.completeness, 'complete');
+  assert.equal(parsed.objects.length, 0);
+  assert.equal(parsed.fragments.length, 1);
+  assert.equal(parsed.fragments[0].content, bytes.toString('utf8'));
+  assert.equal(parsed.completeness, 'indeterminate');
+});
+
+test('unclassified bytes around recognized objects are preserved as fragments', () => {
+  const source = [
+    'prefix noise\n',
+    'CLASS #First\n',
+    'ENDCLASS\n',
+    'between noise\n',
+    'TABLE #Second\n',
+    'ENDTABLE\n',
+    'suffix noise\n',
+  ].join('');
+  const parsed = parseXpo(Buffer.from(source, 'utf8'));
+
+  assert.deepEqual(parsed.objects.map((value) => `${value.canonicalType}:${value.name}`), [
+    'Class:First',
+    'Table:Second',
+  ]);
+  assert.deepEqual(parsed.fragments.map((value) => value.content), [
+    'prefix noise\n',
+    'between noise\n',
+    'suffix noise\n',
+  ]);
+  assert.equal(parsed.completeness, 'indeterminate');
+});
+
+test('recognized objects expose the approved rawHeader field', () => {
+  const parsed = parseXpo(Buffer.from('CLASS #Demo\nENDCLASS\n', 'utf8'));
+
+  assert.equal(parsed.objects[0].rawHeader, 'Demo');
 });
 
 test('empty input remains explicit indeterminate evidence', () => {
