@@ -29,6 +29,7 @@ Loop safety rule:
 - `assess_change_risk`
 - `analyze_posting_flow`
 - `review_architecture`
+- `review_frigelar_compliance`
 - `propose_codefix`
 - `synthesize_answer`
 - `stop_with_missing_context`
@@ -42,6 +43,7 @@ Action-to-skill mapping:
 - `assess_change_risk` -> `xppai-risk`
 - `analyze_posting_flow` -> `xppai-posting`
 - `review_architecture` -> `xppai-architect`
+- `review_frigelar_compliance` -> `xppai-ririchard`
 - `propose_codefix` -> `xppai-codefix`
 - `prepare_xpo_export` -> `xppai-exportxpo`
 - Background foundation: `xppai-init`
@@ -49,6 +51,7 @@ Action-to-skill mapping:
 Routing hint:
 
 - Use `triage_support_issue` when the request begins as a business support symptom, operational error, or troubleshooting question without enough code or XPO evidence to justify artifact-first analysis.
+- Use `review_frigelar_compliance` only when the request explicitly mentions Ririchard or explicitly asks for the Frigelar development-standard review. When selected, preserve the skill's closed rule catalog and do not add generic review findings.
 
 ## Validation Rules
 

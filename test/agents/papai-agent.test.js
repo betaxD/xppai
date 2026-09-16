@@ -48,6 +48,7 @@ test('AGENT.md references required skills', () => {
     'xppai-posting',
     'xppai-architect',
     'xppai-exportxpo',
+    'xppai-ririchard',
   ];
 
   for (const skill of requiredSkills) {
@@ -60,6 +61,14 @@ test('AGENT.md includes support triage action mapping', () => {
   assert.match(content, /triage_support_issue/);
   assert.match(content, /xppai-support/);
   assert.match(content, /business support symptom/i);
+});
+
+test('AGENT.md includes explicit Frigelar compliance routing', () => {
+  const content = fs.readFileSync(AGENT_PATH, 'utf8');
+  assert.match(content, /review_frigelar_compliance/);
+  assert.match(content, /xppai-ririchard/);
+  assert.match(content, /explicit.*Ririchard|Ririchard.*explicit/i);
+  assert.match(content, /explicit.*Frigelar|Frigelar.*explicit/i);
 });
 
 test('legacy SKILL.md keeps frontmatter name', () => {

@@ -7,6 +7,9 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
 const SKILL_PATH = path.join(ROOT, 'assets', 'skills', 'xppai-ririchard', 'SKILL.md');
+const COMMAND_PATH = path.join(ROOT, 'assets', 'commands', 'xppai-ririchard.md');
+const PAPAI_AGENT_PATH = path.join(ROOT, 'assets', 'agents', 'xppai-papai', 'AGENT.md');
+const PAPAI_SKILL_PATH = path.join(ROOT, 'assets', 'skills', 'xppai-papai', 'SKILL.md');
 
 function readSkill() {
   return fs.readFileSync(SKILL_PATH, 'utf8');
@@ -73,4 +76,30 @@ test('xppai-ririchard is documented in user-facing skill catalogs', () => {
     const content = fs.readFileSync(catalog, 'utf8');
     assert.match(content, /xppai-ririchard/i, `${catalog} must list xppai-ririchard`);
   }
+});
+
+test('xppai-ririchard has a public command wrapper', () => {
+  assert.equal(fs.existsSync(COMMAND_PATH), true, 'assets/commands/xppai-ririchard.md must exist');
+  const content = fs.readFileSync(COMMAND_PATH, 'utf8');
+  assert.match(content, /^---[\s\S]*description:/m);
+  assert.match(content, /Use the `xppai-ririchard` skill/i);
+});
+
+test('Papai routes explicit Ririchard or Frigelar compliance requests to the skill', () => {
+  for (const file of [PAPAI_AGENT_PATH, PAPAI_SKILL_PATH]) {
+    const content = fs.readFileSync(file, 'utf8');
+    assert.match(content, /review_frigelar_compliance/);
+    assert.match(content, /review_frigelar_compliance.*xppai-ririchard/is);
+    assert.match(content, /explicit.*Ririchard|Ririchard.*explicit/i);
+    assert.match(content, /explicit.*Frigelar|Frigelar.*explicit/i);
+  }
+});
+
+test('package metadata is advanced to 1.0.23 consistently', () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const lock = JSON.parse(fs.readFileSync(path.join(ROOT, 'package-lock.json'), 'utf8'));
+
+  assert.equal(pkg.version, '1.0.23');
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[''].version, pkg.version);
 });

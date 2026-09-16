@@ -33,11 +33,13 @@ Loop limits:
 - `assess_change_risk` -> `xppai-risk`
 - `analyze_posting_flow` -> `xppai-posting`
 - `review_architecture` -> `xppai-architect`
+- `review_frigelar_compliance` -> `xppai-ririchard`
 - `propose_codefix` -> `xppai-codefix`
 - `prepare_xpo_export` -> `xppai-exportxpo`
 
 Routing rule:
 - If the request starts as a business/support symptom without sufficient artifact evidence, route first to `xppai-support`.
+- If the request explicitly mentions Ririchard or explicitly asks for the Frigelar development-standard review, route to `review_frigelar_compliance` and preserve the closed `xppai-ririchard` rule catalog without generic review findings.
 
 ## Skill Selection Policy
 
