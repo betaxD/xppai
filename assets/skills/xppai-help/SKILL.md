@@ -19,7 +19,6 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 | `xppai-architect` | Review code for architectural weaknesses and design gaps |
 | `xppai-posting` | Analyze FormLetter posting flows and transactional behavior |
 | `xppai-risk` | Assess change risk before modifying any code |
-| `xppai-ririchard` | Review XPOs only against the approved Ririchard/Frigelar development rules |
 | `xppai-support` | Troubleshoot symptom-first AX 2009 support issues with a standard-first cause tree |
 | `xppai-babysit` | Static orchestrator — paste any artifact, get a full labeled analysis |
 | `xppai-papai` | Dynamic senior agent — reasons about what to apply and synthesizes findings |
@@ -41,8 +40,6 @@ description: Use when asked what XppAI skills are available or how to use the Xp
 **Need a fix?** → `xppai-codefix`
 
 **Something smells architecturally wrong?** → `xppai-architect`
-
-**Need the Ririchard/Frigelar XPO compliance review?** → `xppai-ririchard`
 
 ## XPO Intake Quick Rules
 

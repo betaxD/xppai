@@ -19,7 +19,7 @@ test('README documents independent install and side-by-side safety', () => {
 
   assert.match(readme, /npm install -g xppai-ax2012/);
   assert.match(readme, /xppai-ax2012 install --target codex/);
-  assert.match(readme, /side-by-side with xppai@1\.0\.22/i);
+  assert.match(readme, /side-by-side with xppai@1\.0\.24/i);
   assert.match(readme, /AX 2012 R3/);
   assert.match(readme, /does not provide[\s\S]*AX 2009[\s\S]*D365/i);
   for (const target of ['claude', 'codex', 'qwen', 'copilot', 'generic']) assert.match(readme, new RegExp(`\\b${target}\\b`));
@@ -42,7 +42,7 @@ test('skills documentation lists all public skills and manifest references', () 
 
   for (const name of PUBLIC_SKILLS) assert.match(skills, new RegExp(`\\b${name}\\b`));
   for (const ref of manifest.references) assert.match(skills, new RegExp(ref.id.replace('.', '\\.')));
-  assert.equal(PUBLIC_SKILLS.length, 9);
+  assert.equal(PUBLIC_SKILLS.length, 10);
   assert.equal(manifest.references.length, 12);
 });
 
@@ -61,7 +61,7 @@ test('help skill and command expose the public catalog', () => {
   const command = read('assets/commands/xppai-ax2012-help.md');
 
   assert.match(help, /Microsoft Dynamics AX 2012 R3/);
-  assert.match(help, /nine public skills/i);
+  assert.match(help, /ten public skills/i);
   assert.match(help, /twelve reference packs/i);
   assert.match(command, /xppai-ax2012-help/);
 });

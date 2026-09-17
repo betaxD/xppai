@@ -4,6 +4,8 @@ const nodePath = require('path');
 const fs = require('fs');
 const fsHelpers = require('../fs');
 
+const RETIRED_SKILL_ENTRIES = Object.freeze(['xppai-ririchard']);
+
 module.exports = {
   id: 'generic',
 
@@ -21,7 +23,7 @@ module.exports = {
     const mode = (opts && opts.mode) || 'copy';
     const owned = this.listOwnedEntries(skillsDir);
     fsHelpers.ensureDir(outDir);
-    fsHelpers.removeOwned(outDir, owned);
+    fsHelpers.removeOwned(outDir, [...owned, ...RETIRED_SKILL_ENTRIES]);
     for (const name of owned) {
       const src = nodePath.join(skillsDir, name);
       const dest = nodePath.join(outDir, name);
@@ -33,3 +35,5 @@ module.exports = {
     }
   },
 };
+
+module.exports.RETIRED_SKILL_ENTRIES = RETIRED_SKILL_ENTRIES;

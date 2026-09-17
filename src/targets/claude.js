@@ -7,6 +7,8 @@ const fsHelpers = require('../fs');
 const generic = require('./generic');
 const assets = require('../assets');
 
+const RETIRED_COMMAND_ENTRIES = Object.freeze(['xppai-ririchard.md']);
+
 module.exports = {
   id: 'claude',
 
@@ -32,7 +34,7 @@ module.exports = {
 
     const files = fs.readdirSync(srcDir).filter(f => f.endsWith('.md'));
     const owned = files.map(f => f);
-    fsHelpers.removeOwned(destDir, owned);
+    fsHelpers.removeOwned(destDir, [...owned, ...RETIRED_COMMAND_ENTRIES]);
 
     for (const file of files) {
       const src = nodePath.join(srcDir, file);
@@ -45,3 +47,5 @@ module.exports = {
     }
   },
 };
+
+module.exports.RETIRED_COMMAND_ENTRIES = RETIRED_COMMAND_ENTRIES;

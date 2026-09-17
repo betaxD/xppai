@@ -10,9 +10,10 @@
 6. `xppai-ax2012-risk`
 7. `xppai-ax2012-codefix`
 8. `xppai-ax2012-dev`
-9. `xppai-ax2012-help`
+9. `xppai-ax2012-ririchard`
+10. `xppai-ax2012-help`
 
-Direct specialists load core, run intake once for XPO, choose the minimum manifest references, remain within their intent, and recommend Papai when the boundary becomes mixed. Papai routes `explain`, `architect`, `risk`, `codefix`, and `dev` with a default three-cycle investigation budget.
+Direct specialists load core, run intake once for XPO, choose the minimum manifest references, remain within their intent, and recommend Papai when the boundary becomes mixed. `xppai-ax2012-ririchard` is a closed-catalog compliance specialist for explicit Ririchard or Frigelar reviews. Papai routes `explain`, `architect`, `risk`, `codefix`, `dev`, and `review_frigelar_compliance` with a default three-cycle investigation budget.
 
 ## Internal reference packs
 

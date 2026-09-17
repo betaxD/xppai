@@ -99,7 +99,7 @@ test('identity writes are atomic and include the package producer', (t) => {
     schemaVersion: 1,
     product: 'Microsoft Dynamics AX',
     baseline: '2012-R3',
-    producer: { package: 'xppai-ax2012', version: '0.1.0' },
+    producer: { package: 'xppai-ax2012', version: '0.1.1' },
     sources: {},
   });
   assert.deepEqual(readValidatedJson(recordPath, 'index'), record);
@@ -112,7 +112,7 @@ test('session authorization uses the same validated identity envelope', (t) => {
   const written = writeSessionAuthorization(cacheDir, { fingerprint: 'synthetic' });
 
   assert.equal(written.fingerprint, 'synthetic');
-  assert.deepEqual(written.producer, { package: 'xppai-ax2012', version: '0.1.0' });
+  assert.deepEqual(written.producer, { package: 'xppai-ax2012', version: '0.1.1' });
   assert.deepEqual(readSessionAuthorization(cacheDir), written);
   assert.equal(fs.existsSync(path.join(cacheDir, 'xpo-session-auth.json')), true);
 });

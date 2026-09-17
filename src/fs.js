@@ -33,10 +33,20 @@ function symlinkSkill(src, dest) {
   fs.symlinkSync(src, dest, type);
 }
 
+function pathEntryExists(entryPath) {
+  try {
+    fs.lstatSync(entryPath);
+    return true;
+  } catch (error) {
+    if (error && error.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
 function removeOwned(dir, entries) {
   for (const entry of entries) {
     const entryPath = nodePath.join(dir, entry);
-    if (!fs.existsSync(entryPath)) continue;
+    if (!pathEntryExists(entryPath)) continue;
     fs.rmSync(entryPath, { recursive: true, force: true });
   }
 }

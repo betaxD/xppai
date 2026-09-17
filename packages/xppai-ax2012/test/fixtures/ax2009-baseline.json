@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "capture": {
-    "date": "2026-09-16",
-    "gitRevision": "706303c"
+    "date": "2026-09-17",
+    "gitRevision": "working-tree"
   },
   "package": {
     "name": "xppai",
-    "version": "1.0.22",
+    "version": "1.0.24",
     "testCount": 63,
-    "entryCount": 65,
-    "packedSize": 27042,
-    "unpackedSize": 89475,
-    "shasum": "cbd6723c712b838685c66955a9a71f4d447bd5fa"
+    "entryCount": 64,
+    "packedSize": 25073,
+    "unpackedSize": 84467,
+    "shasum": "dee5d83f10ecf285dc05fbbadc5a3bb5aecc7a4c"
   },
   "packageFiles": [
     "README.md",
@@ -39,7 +39,6 @@
     "assets/skills/xppai-intake/SKILL.md",
     "assets/skills/xppai-papai/SKILL.md",
     "assets/skills/xppai-posting/SKILL.md",
-    "assets/skills/xppai-ririchard/SKILL.md",
     "assets/skills/xppai-risk/SKILL.md",
     "assets/skills/xppai-stack/SKILL.md",
     "assets/skills/xppai-support/SKILL.md",
@@ -100,19 +99,18 @@
     "assets/skills/xppai-domain/SKILL.md": "46bc553d32adee79886a39d2e244eb0001a43cdbcee4d1fa07f361a73412150c",
     "assets/skills/xppai-explain/SKILL.md": "bcc695847d3aaf16fc925455441963f77d557257f0dcba2198c6f99f4789e42c",
     "assets/skills/xppai-exportxpo/SKILL.md": "31e9e01df625aaa20187c5c7826ef652d4a2a2f32fdc2983a3fe2c8fafa6554f",
-    "assets/skills/xppai-help/SKILL.md": "b389ccb4ae2e7ac9f090b4ef1d7db794f0340f62375f33afeabe27aa969616d7",
+    "assets/skills/xppai-help/SKILL.md": "77d991f360787e9132c25586375a87aa4fc78718df31a84da5b4265f641b5aed",
     "assets/skills/xppai-init/SKILL.md": "551ad8621ce43b2a410aa01ec32e823086dc0a9ebb96f100694a4f78ac58506f",
     "assets/skills/xppai-intake/SKILL.md": "6e3edd81f30756a16f42ff36132df3e8e0c101300d631d3f00649ec49e4d7b68",
     "assets/skills/xppai-papai/SKILL.md": "b0b7e41f18e33161143cc36b08f832304b909378a2e61cb64e1a588aac7a3f16",
     "assets/skills/xppai-posting/SKILL.md": "94bc4548568a094741d2ca499248a77d08296b973f119520ad1ca9c9cc2c395c",
-    "assets/skills/xppai-ririchard/SKILL.md": "5908edac853dcda95fd2f46e93a1c717630d35c6434d86af5dd9fb6e416f6ace",
     "assets/skills/xppai-risk/SKILL.md": "0dd6d44094c9098fb93a3b2160cd7a3ed0d5fd4522048950ae85727fd60d82d3",
     "assets/skills/xppai-stack/SKILL.md": "df4bcd68bd878f14c2251dd9aafa89b03c3488922ebce7223ba7b263779ad7f5",
     "assets/skills/xppai-support/SKILL.md": "a4658941f3568af4aa1cfba7b6bee1d74ec63ab244c865485ddad8333691a6ca"
   },
-  "aggregateAssetHash": "b86b9ce6386597786523fa3fba9ab532ebed56db5f84f6e559353c76f6e1f0df",
+  "aggregateAssetHash": "20513c173dc32a40ab5c4ab2fb03aaea248e432f387ef384d4e716f25387d4cc",
   "cli": {
-    "version": "1.0.22",
+    "version": "1.0.24",
     "skills": [
       "xppai-architect",
       "xppai-babysit",
@@ -126,7 +124,6 @@
       "xppai-intake",
       "xppai-papai",
       "xppai-posting",
-      "xppai-ririchard",
       "xppai-risk",
       "xppai-stack",
       "xppai-support"

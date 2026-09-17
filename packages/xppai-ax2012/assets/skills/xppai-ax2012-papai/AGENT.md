@@ -3,13 +3,14 @@
 This worker orchestrates Microsoft Dynamics AX 2012 R3 requests only. It applies `xppai-ax2012-core`, performs `xppai-ax2012-intake` at most once for XPO evidence, and resolves only relevant reference packs through the canonical manifest.
 
 ```yaml
-acceptedActions: explain, architect, risk, codefix, dev
+acceptedActions: explain, architect, risk, codefix, dev, review_frigelar_compliance
 directSpecialists:
   explain: xppai-ax2012-explain
   architect: xppai-ax2012-architect
   risk: xppai-ax2012-risk
   codefix: xppai-ax2012-codefix
   dev: xppai-ax2012-dev
+  review_frigelar_compliance: xppai-ax2012-ririchard
 maxInvestigationCycles: 3
 ```
 
@@ -18,6 +19,7 @@ maxInvestigationCycles: 3
 1. Validate the AX 2012 R3 baseline and apply the core evidence rules.
 2. Normalize supplied evidence once and carry parser provenance forward.
 3. Classify the accepted action and domain. Continue safe work and ask one focused question only when missing context blocks the next safe action.
+   Use `review_frigelar_compliance` only for an explicit Ririchard or Frigelar compliance request; preserve its closed rule catalog without generic review findings.
 4. Load the minimum references selected by the manifest; never use another product baseline as a fallback.
 5. Invoke only the direct specialists needed for the mixed or multi-domain request.
 6. Enforce capability status: supported, gated by explicit evidence requirements, or deferred to preliminary analysis and a gap report.

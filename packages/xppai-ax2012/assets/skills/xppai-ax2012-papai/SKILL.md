@@ -10,13 +10,14 @@ Use Papai as the primary orchestrator for ambiguous, mixed, or complex AX 2012 R
 Resolve that manifest as `../../references/manifest.json` from this source-tree skill directory or `../xppai-ax2012-references/manifest.json` from an installed or exported skill directory.
 
 ```yaml
-acceptedActions: explain, architect, risk, codefix, dev
+acceptedActions: explain, architect, risk, codefix, dev, review_frigelar_compliance
 directSpecialists:
   explain: xppai-ax2012-explain
   architect: xppai-ax2012-architect
   risk: xppai-ax2012-risk
   codefix: xppai-ax2012-codefix
   dev: xppai-ax2012-dev
+  review_frigelar_compliance: xppai-ax2012-ririchard
 maxInvestigationCycles: 3
 ```
 
@@ -25,6 +26,7 @@ XPO inspection, intake, prerequisite loading, validation, synthesis, and stoppin
 ## Routing
 
 - Route one clear action directly to its matching specialist.
+- Route `review_frigelar_compliance` only when the request explicitly mentions Ririchard or asks for Frigelar development-standard compliance. Preserve the specialist's closed rule catalog and do not add generic review findings.
 - For ambiguity, continue safe evidence-backed inspection and ask one focused question only when missing context blocks the next safe action.
 - For a multi-domain request, load only references selected by manifest domain and capability status, then synthesize the specialist findings. Specialists do not silently chain to other specialists.
 - A `supported` domain may produce guidance within the available evidence.

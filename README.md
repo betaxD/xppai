@@ -46,7 +46,6 @@ XppAI gives LLMs a better operating manual for this world.
 | `xppai-architect` | Reviews code for architectural weaknesses and design gaps |
 | `xppai-posting` | Analyzes FormLetter posting flows and transaction behavior |
 | `xppai-risk` | Assesses change risk before modifying code |
-| `xppai-ririchard` | Reviews XPOs only against the approved Ririchard/Frigelar development rules |
 | `xppai-help` | General helper and entry guidance |
 | `xppai-exportxpo` | Generates a ready-to-paste X++ job for exporting AOT objects to XPO files |
 

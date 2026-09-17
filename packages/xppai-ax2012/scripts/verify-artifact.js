@@ -66,7 +66,7 @@ function verifyInstalledArtifact(packageRoot = PACKAGE_ROOT) {
 
     const installed = path.join(project, 'node_modules', 'xppai-ax2012');
     const cli = path.join(installed, 'bin', 'xppai-ax2012.js');
-    assert.equal(run(process.execPath, [cli, '--version'], project).trim(), '0.1.0');
+    assert.equal(run(process.execPath, [cli, '--version'], project).trim(), '0.1.1');
     assert.equal(run(process.execPath, [cli, 'list'], project).trim().split(/\r?\n/).length, PUBLIC_SKILLS.length);
     assert.equal(fs.realpathSync(run(process.execPath, [cli, 'path'], project).trim()), fs.realpathSync(path.join(installed, 'assets', 'skills')));
 

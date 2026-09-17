@@ -36,7 +36,7 @@ function verifyTarget(target, mode, root, initialAssets) {
 
   applyInstallPlan(buildInstallPlan({ assetRoot: initialAssets, destinations, target, mode, version: '0.0.0' }));
   assert(fs.existsSync(path.join(destinations.skills, 'xppai-ax2012-retired')));
-  applyInstallPlan(buildInstallPlan({ assetRoot: ASSET_ROOT, destinations, target, mode, version: '0.1.0' }));
+  applyInstallPlan(buildInstallPlan({ assetRoot: ASSET_ROOT, destinations, target, mode, version: '0.1.1' }));
   assert.equal(fs.existsSync(path.join(destinations.skills, 'xppai-ax2012-retired')), false);
   for (const [file, bytes] of sentinels) assert.deepEqual(fs.readFileSync(file), bytes, `${target} changed ${file}`);
 }

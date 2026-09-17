@@ -21,7 +21,7 @@ test('AX 2012 is an independent sibling package', () => {
   const pkg = require(path.join(PACKAGE_ROOT, 'package.json'));
 
   assert.equal(pkg.name, 'xppai-ax2012');
-  assert.equal(pkg.version, '0.1.0');
+  assert.equal(pkg.version, '0.1.1');
   assert.equal(pkg.type, 'commonjs');
   assert.equal(pkg.bin['xppai-ax2012'], 'bin/xppai-ax2012.js');
   assert.deepEqual(pkg.files, ['assets/', 'bin/', 'docs/', 'src/']);
@@ -62,6 +62,7 @@ test('AX 2012 exports only its versioned product identity and skill namespace', 
     'xppai-ax2012-risk',
     'xppai-ax2012-codefix',
     'xppai-ax2012-dev',
+    'xppai-ax2012-ririchard',
     'xppai-ax2012-help',
   ]);
   assert.equal(Object.isFrozen(PRODUCT_IDENTITY), true);

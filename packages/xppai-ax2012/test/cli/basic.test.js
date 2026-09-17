@@ -11,7 +11,7 @@ test('CLI reports only the AX 2012 package identity', () => {
     const result = runCli([flag]);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stderr, '');
-    assert.equal(result.stdout.trim(), '0.1.0');
+    assert.equal(result.stdout.trim(), '0.1.1');
   }
 });
 

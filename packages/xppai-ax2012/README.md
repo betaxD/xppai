@@ -2,7 +2,9 @@
 
 Independent skill suite and CLI for evidence-driven Microsoft Dynamics AX 2012 R3 work. This sibling package has its own lockfile, assets, cache, installation ownership, tests, and release lifecycle; the repository root is not an npm workspace.
 
-The package does not provide AX 2009 or D365 implementation guidance. It can be installed side-by-side with xppai@1.0.22 without sharing skills, cache, manifests, or release state.
+The package does not provide AX 2009 or D365 implementation guidance. It can be installed side-by-side with xppai@1.0.24 without sharing skills, cache, manifests, or release state.
+
+The public `xppai-ax2012-ririchard` specialist performs closed-catalog Frigelar compliance reviews for AX 2012 R3 XPOs.
 
 ## Install
 
