@@ -23,6 +23,8 @@ Collect these inputs only when they are relevant to the requested artifact. Miss
 
 Use the supported AX 2012 R3 framework for the exact domain and execution mode. Generate X++ for the current company. Do not generate `changeCompany` or `crossCompany` unless the user explicitly requests cross-company behavior. Preserve top-of-method declarations, transactions, framework-owned state, security, company/partition context, batch/service CIL compatibility, and deployment consequences. Reject foreign-baseline patterns through the core contract. Do not invent payloads, protocols, identifiers, metadata, or configuration.
 
+Use Portuguese for labels and user-facing texts. Use English for AOT object names and code identifiers, following Dynamics AX conventions; never add an `xpp` prefix to a custom object name. Existing localization blocks have priority over the proposed solution and require explicit prior authorization before any modification. Surface the impact and obtain agreement during design/planning/analysis/proposal before implementation. Keep the implementation minimal: every class, `changeCompany`, `try/catch`, and other abstraction must have a concrete requirement and a clear responsibility.
+
 ## Output
 
 Return the implementation first. Include only relevant assumptions, AOT object inventory and location, dependencies, properties or configuration, entry points and security, compile/database synchronization/CIL steps, deployment or rollback, tests, risks, and unknowns. Do not emit empty headings or a fixed multi-section report.

@@ -34,6 +34,8 @@ Treat model, layer, application build, kernel build, CU/hotfix state, effective 
 ## Cross-cutting AX 2012 rules
 
 - Keep local variable declarations at the beginning of X++ methods.
+- Create user-facing labels and texts in Portuguese. Create AOT objects, methods, parameters, fields, and variables in English, following Dynamics AX naming conventions; do not prefix custom object names with `xpp`.
+- Treat existing country/region localization code (for example `// <GBR>` ... `// </GBR>`) as higher priority than a proposed generic solution. Do not change it without prior explicit authorization. If a change appears necessary, discuss impact during design, planning, analysis, or solution proposal before implementation.
 - Preserve `ttsLevel`, `forUpdate`, transaction, exception, and aggregate-result semantics.
 - Use the correct `TextIo.status()` pattern.
 - Treat AOT and MorphX as active development concepts.
@@ -42,6 +44,7 @@ Treat model, layer, application build, kernel build, CU/hotfix state, effective 
 - Treat AX32 client execution as p-code and batch/service execution as CIL; `Server` alone does not prove CIL execution.
 - Require batch/service-reachable paths to compile and be tested in CIL and in their real execution mode.
 - Prefer the smallest behavior-preserving change.
+- Keep generated X++ lean, direct, and readable. Do not add scaffolding, classes, `changeCompany`, or other structures without a demonstrated contract or runtime need. Use `try/catch` only where an exception can be handled, translated, logged, or deliberately propagated; do not add blanket catches for completeness.
 - Protect country/region behavior and require explicit regional scope plus configuration-key and metadata evidence.
 - Require both layer and model context before production-ready change guidance.
 - State compile, database synchronization, CIL generation, deployment, and AOS implications when applicable.

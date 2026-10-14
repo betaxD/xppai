@@ -14,6 +14,9 @@ Do not silently chain to another specialist. Recommend `xppai-ax2012-papai` for 
 ## Review dimensions
 
 - Responsibility, coupling, extension/event boundaries, and supported framework ownership.
+- Naming and language: Portuguese labels/user-facing text; English AOT objects and identifiers using standard Dynamics AX naming, without an `xpp` object-name prefix.
+- Localization precedence: existing country/region blocks are protected and take precedence over generic design proposals; any apparent required change must be discussed with impact before authorization.
+- Lean design: reject accidental `changeCompany`, empty structural classes, unnecessary abstractions, and catch-all exception handling without a concrete handling contract.
 - Layer/model placement, model-store impact, dependencies, conflicts, and effective top-layer behavior.
 - Service boundaries, contracts, serialization, idempotency, integration ports, and external ownership.
 - Interactive, asynchronous, and batch/CIL execution implications.

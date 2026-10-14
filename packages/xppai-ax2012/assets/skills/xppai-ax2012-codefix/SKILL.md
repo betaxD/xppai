@@ -21,6 +21,8 @@ Distinguish a local handler or method bug from a design gap, missing contract, c
 
 Propose the smallest safe change that restores the intended behavior while preserving public signatures, transaction ownership, framework state, company/partition, security, data integrity, regional behavior, and deployment semantics. Identify exact AOT location, layer/model, and signature impact. Do not modify protected localization or framework-owned posted state directly.
 
+Use Portuguese for any new user-facing label or text, and English for AOT object and code names using standard Dynamics AX conventions; do not introduce an `xpp` prefix. Treat existing localization blocks as higher priority than a generic fix: never edit them without explicit prior authorization, and discuss the impact in the analysis/proposal first. Keep the patch lean; do not introduce `changeCompany`, new structural classes, or broad `try/catch` handling unless the evidence shows a specific requirement and the patch has a defined responsibility for it.
+
 ## Output
 
 Return the focused diff or X++ patch first. Include only relevant root-cause status, exact location, expected/actual behavior, tests, dependencies, compile/synchronization/CIL/deployment steps, rollback, and unresolved unknowns. Do not turn a small local fix into a full diagnostic report.

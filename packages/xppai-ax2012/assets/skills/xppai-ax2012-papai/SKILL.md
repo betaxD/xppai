@@ -25,6 +25,7 @@ XPO inspection, intake, prerequisite loading, validation, synthesis, and stoppin
 
 ## Routing
 
+- Apply the package design baseline to every route: Portuguese labels and user-facing texts; English Dynamics AX object/code names without an `xpp` prefix; protected localization has priority and requires prior authorization plus impact discussion; and implementation must remain lean and purposeful.
 - Route one clear action directly to its matching specialist.
 - Route `review_frigelar_compliance` only when the request explicitly mentions Ririchard or asks for Frigelar development-standard compliance. Preserve the specialist's closed rule catalog and do not add generic review findings.
 - For ambiguity, continue safe evidence-backed inspection and ask one focused question only when missing context blocks the next safe action.
